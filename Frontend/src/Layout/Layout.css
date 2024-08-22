@@ -1,0 +1,21 @@
+.layout__container {
+  background-color: var(--bg-color);
+
+  & .layout__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-block: 2rem;
+  }
+  & .layout__title {
+    color: var(--color-text-title);
+    padding-block: 3rem;
+  }
+
+  & .layout__description {
+    color: var(--color-text-subtitle);
+    padding-block-end: 0.5rem;
+    font-weight: 600;
+  }
+
+}
