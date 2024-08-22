@@ -2,13 +2,16 @@
 .button {
   cursor: pointer;
   display: inline-block;
-  padding: 0.5rem 1rem;
+  padding: 1rem 2rem;
   margin: 0.5rem 0;
-  border: 1px solid #ccc;
   background-color: var(--color-primary);
+  border: none;
+  border-radius: .3rem;
 
   & a {
     text-decoration: none;
-    color: var(--color-tertiary);
+    color: var(--color-link);
+    font-weight: 600;
+    font-size: 1rem;
   }
 }

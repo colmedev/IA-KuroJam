@@ -2,12 +2,11 @@ import './Button.css'
 type ButtonProps = {
   text: string;
   link?: string;
-  isInverted?: boolean;
 }
 
-export const Button = ({ text, link, isInverted}: ButtonProps) => {
+export const Button = ({ text, link }: ButtonProps) => {
   return (
-    <button className={`button ${isInverted ? 'button--inverted' : ''}`}>
+    <button className='button'>
       <a href={link}>{text}</a>
     </button>
   )
