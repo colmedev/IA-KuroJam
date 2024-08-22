@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@fontsource-variable/inter':
+        specifier: ^5.0.20
+        version: 5.0.20
+      '@fontsource-variable/open-sans':
+        specifier: ^5.0.30
+        version: 5.0.30
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -311,6 +317,12 @@ packages:
   '@eslint/object-schema@2.1.4':
     resolution: {integrity: sha512-BsWiH1yFGjXXS2yvrf5LyuoSIIbPrGUWob917o+BTKuZ7qJdxX8aJLRxs1fS9n6r7vESrq1OUqb68dANcFXuQQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@fontsource-variable/inter@5.0.20':
+    resolution: {integrity: sha512-dhzG4Zls/tIrf8h0FhTNi8jT/uFwNhdTY2vKe6DYqoXDYOfEcTVZDyh1hKml1rlLT44Y7OoKoGz8w7czDW7twQ==}
+
+  '@fontsource-variable/open-sans@5.0.30':
+    resolution: {integrity: sha512-uONoPImXz2h08JCq1nD5nsJBbiTgXmVqUHX+UcmpZZNqdoomk1aKtB2vej8VfaHznVDkw1houi3QNT5fMNK9nA==}
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -1346,6 +1358,10 @@ snapshots:
   '@eslint/js@9.9.0': {}
 
   '@eslint/object-schema@2.1.4': {}
+
+  '@fontsource-variable/inter@5.0.20': {}
+
+  '@fontsource-variable/open-sans@5.0.30': {}
 
   '@humanwhocodes/module-importer@1.0.1': {}
 
