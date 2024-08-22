@@ -1,0 +1,16 @@
+.cta__container {
+  padding-block: 2rem;
+  background-color: var(--bg-color);
+  text-align: center;
+  & .cta__title {
+    padding-block: 1.5rem;
+    color: var(--color-text-title);
+    font-weight: 600;
+  }
+  & .cta__subtitle {
+    padding-block-end: 1rem;
+    color: var(--color-text-subtitle);
+    font-weight: 500;
+    
+  }
+}
