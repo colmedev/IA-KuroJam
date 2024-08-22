@@ -1,11 +1,51 @@
+/*------ ROOT VARIABLE  ------*/
 :root {
-  --color-primary: #E2AC2F;
-  --color-secondary: #ebca7c;
-  --color-secondary-alt: #924F1B;
-  --color-tertiary: #2A0308;
-  --color-others: #7BA58D;
-}
-* {
-  box-sizing: border-box;
+  --bg-color: #FFD43B;
+  --color-text-title: #333333;
+  --color-text-title-secondary: #4e4d4d;
+  --color-primary: #18181b;
+  --color-text-subtitle: #555555;
+  --bg-color-secondary: #f8f8f8;
+  --bg-color-footer: #333333;
+  --color-link: #fafafa;
 }
 
+/*------ RESET ------*/
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+/*------ App ------*/
+.career__path {
+  text-align: center;
+  padding-block: 3rem;
+  background-color: var(--bg-color-secondary);
+  opacity: 1;
+
+  & .career__cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    padding-block-start: 1.5rem;
+  }
+
+  & p {
+    color: var(--color-text-subtitle);
+  }
+}
+
+p {
+  font-weight: 600;
+}
+
+h2 {
+  color: var(--color-text-title-secondary);
+}
+
+h3 {
+  font-weight: 800;
+}
