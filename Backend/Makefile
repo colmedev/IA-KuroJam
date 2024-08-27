@@ -30,10 +30,16 @@ run/api:
 run/dataloader:
 	@go run ./cmd/dataloader/... -db-dsn=${DB_DSN} -llm-api-key=${LLM_API_KEY}
 
-## run/json-converter: run the cmd/dataloader application
+## run/json-converter: run the cmd/json-converter application
 .PHONY: run/json-converter
 run/json-converter:
 	@go run ./cmd/json-converter/... 
+
+## run/similarity-search-example: run the cmd/similarity-search-example application
+.PHONY: run/similarity-search-example
+run/similarity-search-example:
+	@go run ./cmd/similarity-search-example/... -db-dsn=${DB_DSN} --llm-api-key=${LLM_API_KEY} $(GO_FLAGS) 
+
 
 ## db/psql: connect to the database using psql
 .PHONY: db/psql
