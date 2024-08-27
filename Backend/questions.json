@@ -1,0 +1,2604 @@
+{
+    "preguntas": [
+        {
+            "ID": 1,
+            "Texto": "¿Te sientes cómodo/a trabajando en equipo para resolver problemas?",
+            "Temas": ["Trabajo en equipo", "Resolución de problemas", "Colaboración"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 2,
+            "Texto": "¿Disfrutas de la atención al detalle y te gusta asegurarte de que las tareas estén bien hechas?",
+            "Temas": ["Atención al detalle", "Calidad", "Precisión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 3,
+            "Texto": "¿Te atraen las actividades que requieren creatividad y originalidad?",
+            "Temas": ["Creatividad", "Innovación", "Diseño"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 4,
+            "Texto": "¿Te gusta planificar y organizar eventos o proyectos?",
+            "Temas": ["Planificación", "Organización", "Gestión de proyectos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 5,
+            "Texto": "¿Te sientes a gusto manejando números y análisis de datos?",
+            "Temas": ["Análisis de datos", "Matemáticas", "Finanzas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 6,
+            "Texto": "¿Prefieres trabajar en un entorno donde puedas interactuar directamente con otras personas?",
+            "Temas": ["Interacción social", "Entorno de trabajo", "Colaboración"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 7,
+            "Texto": "¿Te interesan las actividades que implican investigación y exploración de nuevos conocimientos?",
+            "Temas": ["Investigación", "Aprendizaje", "Curiosidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 8,
+            "Texto": "¿Te resulta fácil comunicar tus ideas de manera clara y efectiva, tanto oralmente como por escrito?",
+            "Temas": ["Comunicación", "Habilidades lingüísticas", "Expresión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 9,
+            "Texto": "¿Te gusta trabajar con herramientas tecnológicas y aprender sobre nuevos dispositivos o software?",
+            "Temas": ["Tecnología", "Innovación", "Adaptación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 10,
+            "Texto": "¿Disfrutas de las actividades al aire libre y prefieres un entorno natural para trabajar?",
+            "Temas": ["Entorno de trabajo", "Naturaleza", "Aire libre"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 11,
+            "Texto": "¿Te sientes cómodo/a liderando equipos y tomando decisiones importantes?",
+            "Temas": ["Liderazgo", "Toma de decisiones", "Gestión de equipos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 12,
+            "Texto": "¿Te interesan las actividades que implican el uso de la lógica y la resolución de problemas?",
+            "Temas": ["Logística", "Resolución de problemas", "Razonamiento lógico"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 13,
+            "Texto": "¿Prefieres trabajos que impliquen ayudar y apoyar a otros en sus necesidades?",
+            "Temas": ["Ayuda", "Servicio", "Apoyo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 14,
+            "Texto": "¿Te gusta crear y diseñar cosas nuevas, ya sea en papel, digitalmente o manualmente?",
+            "Temas": ["Diseño", "Creatividad", "Innovación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 15,
+            "Texto": "¿Te atrae el trabajo físico que implica construcción o reparación de estructuras?",
+            "Temas": ["Trabajo físico", "Construcción", "Ingeniería"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 16,
+            "Texto": "¿Disfrutas de las tareas que requieren paciencia y precisión, como la costura o el ensamblaje de piezas pequeñas?",
+            "Temas": ["Paciencia", "Precisión", "Trabajo manual"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 17,
+            "Texto": "¿Te sientes motivado/a al trabajar en proyectos a largo plazo que requieren perseverancia y dedicación?",
+            "Temas": ["Motivación", "Persistencia", "Proyectos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 18,
+            "Texto": "¿Te interesa el desarrollo de software y la programación?",
+            "Temas": ["Programación", "Tecnología", "Desarrollo de software"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 19,
+            "Texto": "¿Te gusta analizar situaciones complejas para encontrar la mejor solución?",
+            "Temas": ["Análisis", "Resolución de problemas", "Pensamiento crítico"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 20,
+            "Texto": "¿Te sientes cómodo/a trabajando bajo presión y con plazos ajustados?",
+            "Temas": ["Manejo de presión", "Eficiencia", "Plazos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 21,
+            "Texto": "¿Disfrutas de tareas que implican gestionar y optimizar recursos?",
+            "Temas": ["Gestión de recursos", "Eficiencia", "Optimización"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 22,
+            "Texto": "¿Te atraen los trabajos que implican cuidar la salud y el bienestar de los demás?",
+            "Temas": ["Salud", "Bienestar", "Ayuda"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 23,
+            "Texto": "¿Te gusta investigar el comportamiento humano y entender cómo piensan las personas?",
+            "Temas": ["Psicología", "Investigación", "Comportamiento"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 24,
+            "Texto": "¿Prefieres un trabajo estructurado con procedimientos claros o uno más flexible y dinámico?",
+            "Temas": ["Estructura laboral", "Flexibilidad", "Trabajo"],
+            "Puntuación": {
+                "Estrucutrado": 10,
+                "Flexible": 5
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 25,
+            "Texto": "¿Te interesa trabajar en un entorno que cambia constantemente y que requiere adaptabilidad?",
+            "Temas": ["Adaptabilidad", "Cambio", "Entorno laboral"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 26,
+            "Texto": "¿Disfrutas de las actividades que implican hacer seguimiento y mejorar procesos?",
+            "Temas": ["Mejora continua", "Gestión de procesos", "Seguimiento"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 27,
+            "Texto": "¿Te gusta trabajar con las manos y crear cosas tangibles?",
+            "Temas": ["Trabajo manual", "Creación", "Tangible"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 28,
+            "Texto": "¿Te atraen las actividades que requieren la aplicación de conceptos matemáticos?",
+            "Temas": ["Matemáticas", "Análisis", "Resolución de problemas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 29,
+            "Texto": "¿Te sientes motivado/a por el éxito y disfrutas de la competencia sana en el trabajo?",
+            "Temas": ["Motivación", "Competencia", "Éxito"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 30,
+            "Texto": "¿Te interesa la investigación científica y la experimentación?",
+            "Temas": ["Investigación", "Ciencia", "Experimentación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 31,
+            "Texto": "¿Prefieres un entorno de trabajo tranquilo y sin muchas distracciones?",
+            "Temas": ["Ambiente laboral", "Concentración", "Tranquilidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 32,
+            "Texto": "¿Disfrutas de las actividades que requieren innovación y búsqueda de nuevas ideas?",
+            "Temas": ["Innovación", "Creatividad", "Búsqueda"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 33,
+            "Texto": "¿Te gusta aprender sobre cómo funcionan las cosas y resolver problemas técnicos?",
+            "Temas": ["Técnica", "Aprendizaje", "Resolución de problemas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 34,
+            "Texto": "¿Te sientes cómodo/a negociando y llegando a acuerdos con otras personas?",
+            "Temas": ["Negociación", "Acuerdos", "Comunicación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 35,
+            "Texto": "¿Te interesa el diseño gráfico o el arte visual?",
+            "Temas": ["Diseño", "Arte", "Creatividad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 36,
+            "Texto": "¿Prefieres trabajar en proyectos que tienen un impacto directo en la comunidad?",
+            "Temas": ["Impacto social", "Comunidad", "Proyectos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 37,
+            "Texto": "¿Te gusta resolver problemas complejos que requieren mucha reflexión y análisis?",
+            "Temas": ["Análisis", "Resolución de problemas", "Reflexión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 38,
+            "Texto": "¿Te atraen los trabajos que implican atención al cliente y satisfacción del usuario?",
+            "Temas": ["Atención al cliente", "Satisfacción", "Servicio"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 39,
+            "Texto": "¿Te gusta trabajar en un ambiente donde puedas aprender constantemente cosas nuevas?",
+            "Temas": ["Aprendizaje", "Desarrollo personal", "Crecimiento"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 40,
+            "Texto": "¿Te sientes cómodo/a manejando grandes cantidades de información y datos?",
+            "Temas": ["Gestión de datos", "Análisis", "Comodidad con tecnología"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 41,
+            "Texto": "¿Te interesan las actividades que requieren habilidades manuales y técnicas?",
+            "Temas": ["Habilidades manuales", "Técnica", "Práctica"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 42,
+            "Texto": "¿Prefieres trabajar en un entorno de oficina o en el campo?",
+            "Temas": ["Ambiente laboral", "Oficina", "Campo"],
+            "Puntuación": {
+                "Oficina": 10,
+                "Campo": 5
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 43,
+            "Texto": "¿Te gusta escribir y tienes facilidad para expresar ideas a través de la palabra escrita?",
+            "Temas": ["Escritura", "Comunicación", "Expresión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 44,
+            "Texto": "¿Te sientes cómodo/a con la tecnología y disfrutas aprendiendo sobre nuevas aplicaciones y sistemas?",
+            "Temas": ["Tecnología", "Aprendizaje", "Aplicaciones"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 45,
+            "Texto": "¿Te gusta trabajar en proyectos que requieren cooperación y coordinación entre diferentes personas?",
+            "Temas": ["Cooperación", "Coordinación", "Trabajo en equipo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 46,
+            "Texto": "¿Te atrae el desafío de resolver problemas complejos y buscar soluciones innovadoras?",
+            "Temas": ["Desafío", "Resolución de problemas", "Innovación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 47,
+            "Texto": "¿Prefieres un trabajo con una rutina diaria establecida o uno que varíe constantemente?",
+            "Temas": ["Rutina", "Flexibilidad", "Trabajo"],
+            "Puntuación": {
+                "Rutina": 10,
+                "Variable": 5
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 48,
+            "Texto": "¿Te sientes cómodo/a en situaciones de alta presión donde se necesita tomar decisiones rápidas?",
+            "Temas": ["Presión", "Toma de decisiones", "Situaciones críticas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 49,
+            "Texto": "¿Te gusta analizar tendencias y predecir resultados futuros basados en datos?",
+            "Temas": ["Análisis", "Predicción", "Datos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 50,
+            "Texto": "¿Te sientes motivado/a por el reconocimiento y las recompensas por tu trabajo?",
+            "Temas": ["Motivación", "Reconocimiento", "Recompensas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 51,
+            "Texto": "¿Te interesa la mecánica y el funcionamiento de máquinas y equipos?",
+            "Temas": ["Mecánica", "Técnica", "Funcionamiento"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 52,
+            "Texto": "¿Prefieres trabajos que impliquen investigación y desarrollo de nuevas tecnologías?",
+            "Temas": ["Investigación", "Desarrollo", "Tecnología"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 53,
+            "Texto": "¿Te gusta trabajar en un ambiente que requiere creatividad y soluciones originales?",
+            "Temas": ["Creatividad", "Soluciones", "Innovación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 54,
+            "Texto": "¿Te atraen las actividades que requieren habilidades de liderazgo y gestión?",
+            "Temas": ["Liderazgo", "Gestión", "Habilidades"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 55,
+            "Texto": "¿Te sientes cómodo/a resolviendo conflictos y negociando soluciones?",
+            "Temas": ["Conflictos", "Negociación", "Soluciones"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 56,
+            "Texto": "¿Prefieres trabajos que tengan un impacto positivo en la sociedad?",
+            "Temas": ["Impacto social", "Responsabilidad", "Proyectos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 57,
+            "Texto": "¿Te gusta la idea de enseñar o capacitar a otros en nuevas habilidades?",
+            "Temas": ["Educación", "Capacitación", "Enseñanza"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 58,
+            "Texto": "¿Te sientes atraído/a por los desafíos que requieren innovación y pensamiento crítico?",
+            "Temas": ["Desafíos", "Innovación", "Pensamiento crítico"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 59,
+            "Texto": "¿Prefieres trabajos que te permitan trabajar de manera independiente sin mucha supervisión?",
+            "Temas": ["Independencia", "Autoorganización", "Trabajo autónomo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 60,
+            "Texto": "¿Te interesa la investigación médica y el avance de la ciencia en la salud?",
+            "Temas": ["Investigación", "Salud", "Ciencia"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 61,
+            "Texto": "¿Te sientes cómodo/a gestionando proyectos de principio a fin?",
+            "Temas": ["Gestión de proyectos", "Liderazgo", "Organización"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 62,
+            "Texto": "¿Te gusta la idea de trabajar en la planificación y desarrollo de infraestructuras?",
+            "Temas": ["Planificación", "Infraestructura", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 63,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de la creatividad para resolver problemas?",
+            "Temas": ["Creatividad", "Resolución de problemas", "Innovación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 64,
+            "Texto": "¿Te sientes cómodo/a trabajando con diferentes culturas y en ambientes internacionales?",
+            "Temas": ["Cultural", "Internacional", "Adaptabilidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 65,
+            "Texto": "¿Te gusta la idea de trabajar en el campo de la educación?",
+            "Temas": ["Educación", "Formación", "Desarrollo personal"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 66,
+            "Texto": "¿Te interesa el análisis de datos y la ciencia de datos?",
+            "Temas": ["Análisis", "Ciencia de datos", "Datos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 67,
+            "Texto": "¿Te sientes motivado/a por el desafío de aprender nuevas habilidades constantemente?",
+            "Temas": ["Desarrollo personal", "Aprendizaje", "Habilidades"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 68,
+            "Texto": "¿Te atrae la idea de trabajar en la industria del entretenimiento?",
+            "Temas": ["Entretenimiento", "Creatividad", "Industria"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 69,
+            "Texto": "¿Prefieres trabajos que impliquen la interacción constante con otras personas?",
+            "Temas": ["Interacción social", "Trabajo en equipo", "Comunicación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 70,
+            "Texto": "¿Te sientes cómodo/a manejando recursos y optimizando procesos?",
+            "Temas": ["Gestión de recursos", "Optimización", "Administración"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 71,
+            "Texto": "¿Te gusta la idea de trabajar en la investigación y desarrollo de productos?",
+            "Temas": ["Investigación", "Desarrollo de productos", "Innovación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 72,
+            "Texto": "¿Te sientes motivado/a por la idea de ayudar a otros a alcanzar sus metas?",
+            "Temas": ["Ayuda", "Apoyo", "Motivación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 73,
+            "Texto": "¿Te atrae la idea de trabajar en la seguridad y protección de personas o propiedades?",
+            "Temas": ["Seguridad", "Protección", "Responsabilidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 74,
+            "Texto": "¿Prefieres trabajos que impliquen la planificación y ejecución de eventos?",
+            "Temas": ["Planificación de eventos", "Organización", "Ejecución"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 75,
+            "Texto": "¿Te sientes cómodo/a manejando tecnología avanzada y sistemas complejos?",
+            "Temas": ["Tecnología", "Sistemas complejos", "Manejo de tecnología"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 76,
+            "Texto": "¿Te gusta trabajar en proyectos que requieren una atención meticulosa al detalle?",
+            "Temas": ["Atención al detalle", "Proyectos", "Precisión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 77,
+            "Texto": "¿Te atrae la idea de trabajar en la planificación financiera y el análisis de inversiones?",
+            "Temas": ["Planificación financiera", "Análisis", "Inversiones"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 78,
+            "Texto": "¿Prefieres trabajos que te permitan viajar y conocer nuevos lugares?",
+            "Temas": ["Viajes", "Conocer", "Trabajo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 79,
+            "Texto": "¿Te sientes motivado/a por la idea de resolver problemas éticos y morales?",
+            "Temas": ["Ética", "Moral", "Resolución de problemas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 80,
+            "Texto": "¿Te interesa el diseño de productos y la innovación en la manufactura?",
+            "Temas": ["Diseño", "Innovación", "Manufactura"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 81,
+            "Texto": "¿Te gusta trabajar en un ambiente donde puedas ser un líder en tu campo?",
+            "Temas": ["Liderazgo", "Ambiente de trabajo", "Crecimiento"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 82,
+            "Texto": "¿Te atrae la idea de trabajar en la creación y desarrollo de contenidos digitales?",
+            "Temas": ["Contenido digital", "Creatividad", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 83,
+            "Texto": "¿Prefieres trabajos que impliquen la investigación y la exploración de nuevas ideas?",
+            "Temas": ["Investigación", "Exploración", "Nuevas ideas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 84,
+            "Texto": "¿Te sientes cómodo/a trabajando en la administración y gestión de proyectos complejos?",
+            "Temas": ["Administración", "Gestión de proyectos", "Complejidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 85,
+            "Texto": "¿Te gusta la idea de trabajar en el diseño y desarrollo de software?",
+            "Temas": ["Desarrollo de software", "Diseño", "Tecnología"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 86,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de recursos naturales?",
+            "Temas": ["Recursos naturales", "Gestión", "Sostenibilidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 87,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades técnicas y mecánicas?",
+            "Temas": ["Habilidades técnicas", "Mecánica", "Trabajo manual"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 88,
+            "Texto": "¿Te sientes motivado/a por el desafío de liderar equipos y gestionar personas?",
+            "Temas": ["Liderazgo", "Gestión de personas", "Trabajo en equipo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 89,
+            "Texto": "¿Te gusta la idea de trabajar en la consultoría y asesoramiento empresarial?",
+            "Temas": ["Consultoría", "Asesoramiento", "Negocios"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 90,
+            "Texto": "¿Te atrae la idea de trabajar en la investigación científica y la innovación tecnológica?",
+            "Temas": ["Investigación científica", "Innovación", "Ciencia"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 91,
+            "Texto": "¿Prefieres trabajos que te permitan trabajar en entornos multiculturales?",
+            "Temas": ["Cultural", "Multicultural", "Trabajo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 92,
+            "Texto": "¿Te sientes cómodo/a trabajando en la planificación y desarrollo de políticas públicas?",
+            "Temas": ["Políticas públicas", "Planificación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 93,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la moda y el diseño?",
+            "Temas": ["Moda", "Diseño", "Creatividad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 94,
+            "Texto": "¿Te atrae la idea de trabajar en la investigación médica y la biotecnología?",
+            "Temas": ["Investigación médica", "Biotecnología", "Ciencia"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 95,
+            "Texto": "¿Prefieres trabajos que impliquen el análisis y solución de problemas complejos?",
+            "Temas": ["Análisis", "Resolución de problemas", "Complejidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 96,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la protección del medio ambiente?",
+            "Temas": ["Medio ambiente", "Protección", "Sostenibilidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 97,
+            "Texto": "¿Te gusta la idea de trabajar en la gestión de proyectos de construcción?",
+            "Temas": ["Gestión de proyectos", "Construcción", "Planificación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 98,
+            "Texto": "¿Te atrae la idea de trabajar en la educación y capacitación de adultos?",
+            "Temas": ["Educación", "Capacitación", "Formación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 99,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades matemáticas y estadísticas?",
+            "Temas": ["Matemáticas", "Estadísticas", "Análisis"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 100,
+            "Texto": "¿Te sientes cómodo/a trabajando en la gestión de operaciones y logística?",
+            "Temas": ["Gestión", "Logística", "Operaciones"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 101,
+            "Texto": "¿Te gusta la idea de trabajar en la industria del cine y la televisión?",
+            "Temas": ["Cine", "Televisión", "Entretenimiento"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 102,
+            "Texto": "¿Te atrae la idea de trabajar en la investigación de mercado y el análisis de consumidores?",
+            "Temas": ["Investigación de mercado", "Análisis", "Consumidores"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 103,
+            "Texto": "¿Prefieres trabajos que impliquen la interacción con clientes y la venta de productos?",
+            "Temas": ["Interacción", "Clientes", "Ventas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 104,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la planificación urbana y regional?",
+            "Temas": ["Planificación", "Urbana", "Proyectos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 105,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la energía y la sostenibilidad?",
+            "Temas": ["Energía", "Sostenibilidad", "Industria"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 106,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de recursos humanos?",
+            "Temas": ["Recursos humanos", "Gestión", "Trabajo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 107,
+            "Texto": "¿Prefieres trabajos que te permitan trabajar en la investigación y desarrollo de nuevos productos?",
+            "Temas": ["Investigación", "Desarrollo", "Nuevos productos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 108,
+            "Texto": "¿Te sientes cómodo/a trabajando en la administración y gestión financiera?",
+            "Temas": ["Administración", "Gestión financiera", "Finanzas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 109,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la salud y el bienestar?",
+            "Temas": ["Salud", "Bienestar", "Industria"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 110,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de proyectos tecnológicos?",
+            "Temas": ["Proyectos", "Tecnología", "Gestión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 111,
+            "Texto": "¿Prefieres trabajos que impliquen la planificación y ejecución de estrategias de negocio?",
+            "Temas": ["Estrategias", "Negocios", "Planificación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 112,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la educación y la formación de nuevas generaciones?",
+            "Temas": ["Educación", "Formación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 113,
+            "Texto": "¿Te gusta la idea de trabajar en la investigación y desarrollo de energías renovables?",
+            "Temas": ["Energías renovables", "Investigación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 114,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de proyectos de construcción?",
+            "Temas": ["Gestión de proyectos", "Construcción", "Planificación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 115,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades de comunicación y relaciones públicas?",
+            "Temas": ["Comunicación", "Relaciones públicas", "Trabajo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 116,
+            "Texto": "¿Te sientes cómodo/a trabajando en la administración y gestión de sistemas de información?",
+            "Temas": ["Sistemas de información", "Administración", "Gestión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 117,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la tecnología de la información?",
+            "Temas": ["Tecnología de la información", "Industria", "Tecnología"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 118,
+            "Texto": "¿Te atrae la idea de trabajar en la planificación y desarrollo de infraestructuras?",
+            "Temas": ["Planificación", "Infraestructura", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 119,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades analíticas y de resolución de problemas?",
+            "Temas": ["Habilidades analíticas", "Resolución de problemas", "Análisis"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 120,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la protección y conservación del medio ambiente?",
+            "Temas": ["Medio ambiente", "Conservación", "Protección"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 121,
+            "Texto": "¿Te gusta la idea de trabajar en la investigación y desarrollo de biotecnología?",
+            "Temas": ["Biotecnología", "Investigación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 122,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de proyectos de ingeniería?",
+            "Temas": ["Proyectos", "Ingeniería", "Gestión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 123,
+            "Texto": "¿Prefieres trabajos que impliquen la interacción con diferentes culturas y entornos internacionales?",
+            "Temas": ["Cultura", "Internacional", "Interacción"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 124,
+            "Texto": "¿Te sientes cómodo/a trabajando en la planificación y desarrollo de políticas públicas?",
+            "Temas": ["Políticas públicas", "Planificación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 125,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la moda y el diseño?",
+            "Temas": ["Moda", "Diseño", "Creatividad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 126,
+            "Texto": "¿Te atrae la idea de trabajar en la investigación médica y la biotecnología?",
+            "Temas": ["Investigación médica", "Biotecnología", "Ciencia"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 127,
+            "Texto": "¿Prefieres trabajos que impliquen el análisis y solución de problemas complejos?",
+            "Temas": ["Análisis", "Resolución de problemas", "Complejidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 128,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la protección del medio ambiente?",
+            "Temas": ["Medio ambiente", "Protección", "Sostenibilidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 129,
+            "Texto": "¿Te gusta la idea de trabajar en la gestión de proyectos de construcción?",
+            "Temas": ["Gestión de proyectos", "Construcción", "Planificación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 130,
+            "Texto": "¿Te atrae la idea de trabajar en la educación y capacitación de adultos?",
+            "Temas": ["Educación", "Capacitación", "Formación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 131,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades matemáticas y estadísticas?",
+            "Temas": ["Matemáticas", "Estadísticas", "Análisis"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 132,
+            "Texto": "¿Te sientes cómodo/a trabajando en la gestión de operaciones y logística?",
+            "Temas": ["Gestión", "Operaciones", "Logística"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 133,
+            "Texto": "¿Te gusta la idea de trabajar en la industria del cine y la televisión?",
+            "Temas": ["Cine", "Televisión", "Entretenimiento"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 134,
+            "Texto": "¿Te atrae la idea de trabajar en la investigación de mercado y el análisis de consumidores?",
+            "Temas": ["Investigación de mercado", "Análisis", "Consumidores"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 135,
+            "Texto": "¿Prefieres trabajos que impliquen la interacción con clientes y la venta de productos?",
+            "Temas": ["Interacción", "Clientes", "Ventas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 136,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la planificación urbana y regional?",
+            "Temas": ["Planificación", "Urbana", "Proyectos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 137,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la energía y la sostenibilidad?",
+            "Temas": ["Energía", "Sostenibilidad", "Industria"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 138,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de recursos humanos?",
+            "Temas": ["Recursos humanos", "Gestión", "Trabajo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 139,
+            "Texto": "¿Prefieres trabajos que te permitan trabajar en la investigación y desarrollo de nuevos productos?",
+            "Temas": ["Investigación", "Desarrollo", "Nuevos productos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 140,
+            "Texto": "¿Te sientes cómodo/a trabajando en la administración y gestión financiera?",
+            "Temas": ["Administración", "Gestión financiera", "Finanzas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 141,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la salud y el bienestar?",
+            "Temas": ["Salud", "Bienestar", "Industria"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 142,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de proyectos tecnológicos?",
+            "Temas": ["Proyectos", "Tecnología", "Gestión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 143,
+            "Texto": "¿Prefieres trabajos que impliquen la planificación y ejecución de estrategias de negocio?",
+            "Temas": ["Estrategias", "Negocios", "Planificación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 144,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la educación y la formación de nuevas generaciones?",
+            "Temas": ["Educación", "Formación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 145,
+            "Texto": "¿Te gusta la idea de trabajar en la investigación y desarrollo de energías renovables?",
+            "Temas": ["Energías renovables", "Investigación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 146,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de proyectos de construcción?",
+            "Temas": ["Gestión de proyectos", "Construcción", "Planificación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 147,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades de comunicación y relaciones públicas?",
+            "Temas": ["Comunicación", "Relaciones públicas", "Trabajo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 148,
+            "Texto": "¿Te sientes cómodo/a trabajando en la administración y gestión de sistemas de información?",
+            "Temas": ["Sistemas de información", "Administración", "Gestión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 149,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la tecnología de la información?",
+            "Temas": ["Tecnología de la información", "Industria", "Tecnología"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 150,
+            "Texto": "¿Te atrae la idea de trabajar en la planificación y desarrollo de infraestructuras?",
+            "Temas": ["Planificación", "Infraestructura", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 151,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades analíticas y de resolución de problemas?",
+            "Temas": ["Habilidades analíticas", "Resolución de problemas", "Análisis"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 152,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la protección y conservación del medio ambiente?",
+            "Temas": ["Medio ambiente", "Conservación", "Protección"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 153,
+            "Texto": "¿Te gusta la idea de trabajar en la investigación y desarrollo de biotecnología?",
+            "Temas": ["Biotecnología", "Investigación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 154,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de proyectos de ingeniería?",
+            "Temas": ["Proyectos", "Ingeniería", "Gestión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 155,
+            "Texto": "¿Prefieres trabajos que impliquen la interacción con diferentes culturas y entornos internacionales?",
+            "Temas": ["Cultura", "Internacional", "Interacción"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 156,
+            "Texto": "¿Te sientes cómodo/a trabajando en la planificación y desarrollo de políticas públicas?",
+            "Temas": ["Políticas públicas", "Planificación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 157,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la moda y el diseño?",
+            "Temas": ["Moda", "Diseño", "Creatividad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 158,
+            "Texto": "¿Te atrae la idea de trabajar en la investigación médica y la biotecnología?",
+            "Temas": ["Investigación médica", "Biotecnología", "Ciencia"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 159,
+            "Texto": "¿Prefieres trabajos que impliquen el análisis y solución de problemas complejos?",
+            "Temas": ["Análisis", "Resolución de problemas", "Complejidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 160,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la protección del medio ambiente?",
+            "Temas": ["Medio ambiente", "Protección", "Sostenibilidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 161,
+            "Texto": "¿Te gusta la idea de trabajar en la gestión de proyectos de construcción?",
+            "Temas": ["Gestión de proyectos", "Construcción", "Planificación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 162,
+            "Texto": "¿Te atrae la idea de trabajar en la educación y capacitación de adultos?",
+            "Temas": ["Educación", "Capacitación", "Formación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 163,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades matemáticas y estadísticas?",
+            "Temas": ["Matemáticas", "Estadísticas", "Análisis"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 164,
+            "Texto": "¿Te sientes cómodo/a trabajando en la gestión de operaciones y logística?",
+            "Temas": ["Gestión", "Operaciones", "Logística"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                     "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 165,
+            "Texto": "¿Te gusta la idea de trabajar en la industria del cine y la televisión?",
+            "Temas": ["Cine", "Televisión", "Entretenimiento"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 166,
+            "Texto": "¿Te atrae la idea de trabajar en la investigación de mercado y el análisis de consumidores?",
+            "Temas": ["Investigación de mercado", "Análisis", "Consumidores"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 167,
+            "Texto": "¿Prefieres trabajos que impliquen la interacción con clientes y la venta de productos?",
+            "Temas": ["Interacción", "Clientes", "Ventas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 168,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la planificación urbana y regional?",
+            "Temas": ["Planificación", "Urbana", "Proyectos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 169,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la energía y la sostenibilidad?",
+            "Temas": ["Energía", "Sostenibilidad", "Industria"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 170,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de recursos humanos?",
+            "Temas": ["Recursos humanos", "Gestión", "Trabajo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 171,
+            "Texto": "¿Prefieres trabajos que te permitan trabajar en la investigación y desarrollo de nuevos productos?",
+            "Temas": ["Investigación", "Desarrollo", "Nuevos productos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 172,
+            "Texto": "¿Te sientes cómodo/a trabajando en la administración y gestión financiera?",
+            "Temas": ["Administración", "Gestión financiera", "Finanzas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 173,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la salud y el bienestar?",
+            "Temas": ["Salud", "Bienestar", "Industria"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 174,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de proyectos tecnológicos?",
+            "Temas": ["Proyectos", "Tecnología", "Gestión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 175,
+            "Texto": "¿Prefieres trabajos que impliquen la planificación y ejecución de estrategias de negocio?",
+            "Temas": ["Estrategias", "Negocios", "Planificación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 176,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la educación y la formación de nuevas generaciones?",
+            "Temas": ["Educación", "Formación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 177,
+            "Texto": "¿Te gusta la idea de trabajar en la investigación y desarrollo de energías renovables?",
+            "Temas": ["Energías renovables", "Investigación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 178,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de proyectos de construcción?",
+            "Temas": ["Gestión de proyectos", "Construcción", "Planificación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 179,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades de comunicación y relaciones públicas?",
+            "Temas": ["Comunicación", "Relaciones públicas", "Trabajo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 180,
+            "Texto": "¿Te sientes cómodo/a trabajando en la administración y gestión de sistemas de información?",
+            "Temas": ["Sistemas de información", "Administración", "Gestión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 181,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la tecnología de la información?",
+            "Temas": ["Tecnología de la información", "Industria", "Tecnología"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 182,
+            "Texto": "¿Te atrae la idea de trabajar en la planificación y desarrollo de infraestructuras?",
+            "Temas": ["Planificación", "Infraestructura", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 183,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades analíticas y de resolución de problemas?",
+            "Temas": ["Habilidades analíticas", "Resolución de problemas", "Análisis"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 184,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la protección y conservación del medio ambiente?",
+            "Temas": ["Medio ambiente", "Conservación", "Protección"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 185,
+            "Texto": "¿Te gusta la idea de trabajar en la investigación y desarrollo de biotecnología?",
+            "Temas": ["Biotecnología", "Investigación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 186,
+            "Texto": "¿Te atrae la idea de trabajar en la gestión de proyectos de ingeniería?",
+            "Temas": ["Proyectos", "Ingeniería", "Gestión"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 187,
+            "Texto": "¿Prefieres trabajos que impliquen la interacción con diferentes culturas y entornos internacionales?",
+            "Temas": ["Cultura", "Internacional", "Interacción"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 188,
+            "Texto": "¿Te sientes cómodo/a trabajando en la planificación y desarrollo de políticas públicas?",
+            "Temas": ["Políticas públicas", "Planificación", "Desarrollo"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 189,
+            "Texto": "¿Te gusta la idea de trabajar en la industria de la moda y el diseño?",
+            "Temas": ["Moda", "Diseño", "Creatividad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 190,
+            "Texto": "¿Te atrae la idea de trabajar en la investigación médica y la biotecnología?",
+            "Temas": ["Investigación médica", "Biotecnología", "Ciencia"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 191,
+            "Texto": "¿Prefieres trabajos que impliquen el análisis y solución de problemas complejos?",
+            "Temas": ["Análisis", "Resolución de problemas", "Complejidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 192,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la protección del medio ambiente?",
+            "Temas": ["Medio ambiente", "Protección", "Sostenibilidad"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 193,
+            "Texto": "¿Te gusta la idea de trabajar en la gestión de proyectos de construcción?",
+            "Temas": ["Gestión de proyectos", "Construcción", "Planificación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 194,
+            "Texto": "¿Te atrae la idea de trabajar en la educación y capacitación de adultos?",
+            "Temas": ["Educación", "Capacitación", "Formación"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 195,
+            "Texto": "¿Prefieres trabajos que impliquen el uso de habilidades matemáticas y estadísticas?",
+            "Temas": ["Matemáticas", "Estadísticas", "Análisis"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 196,
+            "Texto": "¿Te sientes cómodo/a trabajando en la gestión de operaciones y logística?",
+            "Temas": ["Gestión", "Operaciones", "Logística"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 197,
+            "Texto": "¿Te gusta la idea de trabajar en la industria del cine y la televisión?",
+            "Temas": ["Cine", "Televisión", "Entretenimiento"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 198,
+            "Texto": "¿Te atrae la idea de trabajar en la investigación de mercado y el análisis de consumidores?",
+            "Temas": ["Investigación de mercado", "Análisis", "Consumidores"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 199,
+            "Texto": "¿Prefieres trabajos que impliquen la interacción con clientes y la venta de productos?",
+            "Temas": ["Interacción", "Clientes", "Ventas"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "ID": 200,
+            "Texto": "¿Te sientes motivado/a por la idea de trabajar en la planificación urbana y regional?",
+            "Temas": ["Planificación", "Urbana", "Proyectos"],
+            "Puntuación": {
+                "Sí": 10,
+                "No": 0
+            },
+            "Rango de Puntuación": {
+                "min": 0,
+                "max": 10
+            }
+        }
+    ]
+}

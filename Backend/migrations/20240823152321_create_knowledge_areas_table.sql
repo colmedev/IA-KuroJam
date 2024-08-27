@@ -9,5 +9,5 @@ CREATE TABLE knowledge_areas (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE knowledge_areasd;
+DROP TABLE knowledge_areas;
 -- +goose StatementEnd

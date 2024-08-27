@@ -9,7 +9,7 @@ CREATE TABLE careers (
     average_salary VARCHAR(255),
     lower_salary VARCHAR(255),
     highest_salary VARCHAR(255),
-    embedding VECTOR(1536)
+    embedding VECTOR(3072)
 );
 -- -- +goose StatementEnd
 

@@ -28,8 +28,12 @@ run/api:
 ## run/dataloader: run the cmd/dataloader application
 .PHONY: run/dataloader
 run/dataloader:
-	@go run ./cmd/dataloader/... -db-dsn=${DB_DSN}
+	@go run ./cmd/dataloader/... -db-dsn=${DB_DSN} -llm-api-key=${LLM_API_KEY}
 
+## run/json-converter: run the cmd/dataloader application
+.PHONY: run/json-converter
+run/json-converter:
+	@go run ./cmd/json-converter/... 
 
 ## db/psql: connect to the database using psql
 .PHONY: db/psql
