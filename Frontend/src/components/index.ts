@@ -4,3 +4,5 @@ export { Input } from "./ChatComponents/Input";
 export { Card } from "./Card/Card"
 export { Footer } from "./Footer/Footer"
 export { Cta } from "./SectionCtA/CtA"
+export { Signin } from "./auth/Signin"
+export { Login } from "./auth/Login"
