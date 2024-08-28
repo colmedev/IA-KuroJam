@@ -1,0 +1,22 @@
+.signin {
+  display: flex;
+  justify-content: end;
+  padding: 1rem;
+
+  & .button-signin {
+    padding: 1rem;
+    background-color: var(--color-primary);
+    border: none;
+    border-radius: .3rem;
+    color: var(--color-link);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  & .signin__dialog {
+    margin: auto;
+    filter: drop-shadow(0 0 0.75rem #18181b);
+    backdrop-filter: blur(5px);
+  }
+}
