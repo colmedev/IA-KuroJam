@@ -21,4 +21,5 @@ type Config struct {
 		SigningKey               string
 		TokenExpirationInMinutes int
 	}
+	LlmApiKey string
 }

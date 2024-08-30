@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/colmedev/IA-KuroJam/Backend/validator"
 	"github.com/jmoiron/sqlx"
@@ -15,16 +14,6 @@ var (
 )
 
 var AnonymousUser = User{}
-
-type User struct {
-	Id        int       `db:"id" json:"id,omitempty"`
-	ClerkId   string    `db:"clerk_id" json:"-"`
-	Email     string    `db:"email" json:"email"`
-	Name      string    `db:"name" json:"name"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
-	Version   int       `db:"version" json:"-"`
-}
 
 func (u *User) IsAnonymous() bool {
 	return u == &AnonymousUser

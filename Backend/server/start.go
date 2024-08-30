@@ -8,6 +8,9 @@ import (
 	"strings"
 
 	"github.com/colmedev/IA-KuroJam/Backend/api"
+	"github.com/colmedev/IA-KuroJam/Backend/careers"
+	"github.com/colmedev/IA-KuroJam/Backend/careertest"
+	"github.com/colmedev/IA-KuroJam/Backend/llm"
 	"github.com/colmedev/IA-KuroJam/Backend/users"
 )
 
@@ -37,6 +40,8 @@ func StartServer() error {
 
 	flag.StringVar(&config.Auth.SigningKey, "signing-key", "abc123", "JWT Tokens Signing Key")
 	flag.IntVar(&config.Auth.TokenExpirationInMinutes, "token-expiration", 15, "Token Expiration in Minutes")
+
+	flag.StringVar(&config.LlmApiKey, "llm-api-key", "", "LLM API Key")
 
 	displayVersion := flag.Bool("version", false, "Display version and exit")
 
@@ -70,8 +75,10 @@ func StartServer() error {
 		return fmt.Errorf("error initializing user service: %w", err)
 	}
 
-	// authService := auth.NewGoogleOauthService("1", "1", "1", []string{}, usersService)
-	// tokenService := auth.NewTokenService(db, config.Auth.SigningKey, config.Auth.TokenExpirationInMinutes)
+	// TODO: Add services
+	llmService := llm.NewOpenAIService(config.LlmApiKey)
+	careerTestService := careertest.NewService(db, llmService)
+	careerService := careers.NewCareerService(db)
 
 	// Application
 	app := api.NewApplication(
@@ -79,6 +86,9 @@ func StartServer() error {
 		db,
 		logger,
 		api.WithUserService(usersService),
+		api.WithLlmService(llmService),
+		api.WithCareerTestService(careerTestService),
+		api.WithCareerService(careerService),
 	)
 
 	// Handlers

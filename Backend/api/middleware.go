@@ -89,7 +89,7 @@ func (app *Api) Authenticate(next http.Handler) http.Handler {
 
 		authorizationHeader := r.Header.Get("Authorization")
 		if authorizationHeader == "" {
-			r = app.contextSetUser(r, &users.AnonymousUser)
+			r = app.ContextSetUser(r, &users.AnonymousUser)
 			next.ServeHTTP(w, r)
 
 			return
@@ -161,9 +161,7 @@ func (app *Api) Authenticate(next http.Handler) http.Handler {
 			}
 		}
 
-		fmt.Println(user, err)
-
-		r = app.contextSetUser(r, user)
+		r = app.ContextSetUser(r, user)
 		next.ServeHTTP(w, r)
 	})
 }
@@ -171,7 +169,7 @@ func (app *Api) Authenticate(next http.Handler) http.Handler {
 // Create a new requireAuthenticatedUser() middleware to check that a user is not anonymous.
 func (app *Api) RequireAuthenticatedUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user := app.contextGetUser(r)
+		user := app.ContextGetUser(r)
 
 		if user.IsAnonymous() {
 			app.AuthenticationRequiredResponse(w, r)

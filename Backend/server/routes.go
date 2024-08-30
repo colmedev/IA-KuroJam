@@ -18,18 +18,21 @@ func (h *Handlers) routes() http.Handler {
 	router.Use(middleware.Logger)
 	router.Use(h.app.Authenticate)
 	// TODO: Add Panic Recover, RateLimiter, CORS
+	router.Use(middleware.Recoverer)
 
 	router.Get("/v1/healthcheck", h.healthCheckHandler)
-	router.Post("/v1/auth/login", h.authenticate)
-	router.Post("/v1/auth/register", h.register)
+	// router.Post("/v1/auth/login", h.authenticate)
+	// router.Post("/v1/auth/register", h.register)
 
 	router.Group(func(protected chi.Router) {
 
 		protected.Use(h.app.RequireAuthenticatedUser)
 
-		protected.Get("/v1/protected_info", func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Welcome to your info!"))
-		})
+		protected.Post("/v1/start-test", h.startTest)
+		protected.Get("/v1/questions/{id}", h.getQuestion)
+		protected.Post("/v1/answer/{id}", h.postAnswer)
+		protected.Get("/v1/results/{id}", h.getResults)
+		protected.Get("/v1/get-test", h.getActiveTest)
 	})
 
 	return router
