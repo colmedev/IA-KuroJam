@@ -1,14 +1,19 @@
+import {SignedIn, SignedOut, UserButton } from '@clerk/clerk-react'
 import './Navbar.css'
-import { Signin } from '../auth/Signin'
-import { Login } from '../auth/Login'
-export function Navbar() {
-  
+import { Signin } from '../auth/Signin';
+
+export function Navbar() { 
 
   return (
     <>
-    <Login />
-    <Signin />
+        <div className='Navbar'>
+            <SignedOut>
+                <Signin />
+            </SignedOut>
+            <SignedIn>
+                <UserButton />
+            </SignedIn>
+        </div>
     </>
   )
 }
-

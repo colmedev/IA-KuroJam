@@ -1,20 +1,14 @@
+import { useNavigate } from 'react-router'
 import './Signin.css'
-import { SignedOut } from "@clerk/clerk-react"
 
 export function Signin() {
 
+  const navigate = useNavigate();
 
   const handleClick = () => {
-    const dialog = document.querySelector('dialog')
-    dialog?.showModal()
+    navigate('/sign-in');
   }
-
-
-  const handleClose = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    const dialog = document.querySelector('dialog')
-    dialog?.close()
-  }
+ 
 
   return(
     <>
@@ -22,9 +16,6 @@ export function Signin() {
       <button className="button-signin" onClick={handleClick}>
         Sign in
       </button>
-      <dialog onClick={handleClose} className="signin__dialog">
-      </dialog>
-    <SignedOut />
     </div>
     </>
   )

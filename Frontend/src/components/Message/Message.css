@@ -1,0 +1,24 @@
+.message {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.user-message {
+  justify-content: flex-end;
+}
+
+.ai-message {
+  justify-content: flex-start;
+}
+
+.message-content {
+  max-width: 60%;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #E1E1E1;
+  color: #000;
+}
+
+.user-message .message-content {
+  background-color: #DCF8C6;
+}
