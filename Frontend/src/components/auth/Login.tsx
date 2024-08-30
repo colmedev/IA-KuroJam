@@ -1,16 +1,13 @@
-import { useSignUp } from "@clerk/clerk-react"
 
-//TODO: Add functional login
-export const Login = () => {
-  const { setActive, signUp, isLoaded } = useSignUp()
+interface LoginButtonProps {
+    onClick: () => void;
+}
 
-  const HandleLogin = () => {
-    
-  } 
+export const Login: React.FC<LoginButtonProps> = ({onClick}) => {
 
   return (
-    <button className="button-login" onClick={HandleLogin}>
-      
+    <button className="button-login" onClick={onClick}>
+        Sign In      
     </button>
   )
 }
