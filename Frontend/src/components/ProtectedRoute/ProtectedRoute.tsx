@@ -3,7 +3,11 @@ import { useAuth } from '@clerk/clerk-react';
 import { Footer } from '../Footer/Footer';
 import ProtectedNavbar from '../ProtectedNavbar/ProtectedNavbar';
 
-export function ProtectedRoute({ element }) {
+interface ProtectedRouteProps {
+    element: React.ReactElement
+}
+
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
   const {isLoaded, userId} = useAuth();
  
   if (!isLoaded) {
@@ -18,7 +22,6 @@ export function ProtectedRoute({ element }) {
     <div className='container'>
         <ProtectedNavbar/> 
         {element}
-        
         <Footer/>
     </div>
   );
