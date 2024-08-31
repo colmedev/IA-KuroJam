@@ -3,7 +3,7 @@ export const Footer = () => {
   return (
     <>
       <footer>
-        <p>Made by Miguel Colmenarez & Luis Matos with ❤</p>
+        <p style={{color: 'white'}}>Made by Miguel Colmenarez & Luis Matos with <span style={{color: 'red'}}>❤</span></p>
       </footer>
     </>
   )

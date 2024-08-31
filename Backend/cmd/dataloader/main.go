@@ -64,36 +64,31 @@ func main() {
 		RETURNING id`
 
 	knowledgeAreaQuery := `INSERT INTO knowledge_areas
-		(category_id, area_name) VALUES($1, $2)
-		RETURNING id`
+		(category_id, area_name) VALUES($1, $2)`
 
 	abilityCategoryQuery := `INSERT INTO ability_categories
 		(career_id, category_name) VALUES ($1, $2)
 		RETURNING id`
 
 	abilityAreaQuery := `INSERT INTO ability_areas
-		(category_id, area_name) VALUES ($1, $2)
-		RETURNING id`
+		(category_id, area_name) VALUES ($1, $2)`
 
 	skillCategoryQuery := `INSERT INTO skill_categories
 		(career_id, category_name) VALUES ($1, $2)
 		RETURNING id`
 
 	skillAreaQuery := `INSERT INTO skill_areas
-		(category_id, area_name) VALUES ($1, $2)
-		RETURNING id`
+		(category_id, area_name) VALUES ($1, $2)`
 
 	technologyCategoryQuery := `INSERT INTO technology_categories
 		(career_id, category_name) VALUES ($1, $2)
 		RETURNING id`
 
 	technologyAreaQuery := `INSERT INTO technology_areas
-		(category_id, area_name) VALUES ($1, $2)
-		RETURNING id`
+		(category_id, area_name) VALUES ($1, $2)`
 
-	personalityAtributesQuery := `INSERT INTO personality_attributes
-		(career_id, attribute_name) VALUES ($1, $2)
-		RETURNING id`
+	personalityAttributesQuery := `INSERT INTO personality_attributes
+		(career_id, attribute_name) VALUES ($1, $2)`
 
 	for scanner.Scan() {
 		line := scanner.Bytes()
@@ -127,13 +122,13 @@ func main() {
 
 		// Knowledge
 		for _, k := range career.Knowledge {
-			err := db.QueryRowxContext(ctx, knowledgeCategoryQuery, career.ID, k.CategoryName).Scan(&k.ID)
+			err := db.QueryRowxContext(ctx, knowledgeCategoryQuery, career.ID, k.Name).Scan(&k.ID)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			for _, ka := range k.KnowledgeAreas {
-				err := db.QueryRowxContext(ctx, knowledgeAreaQuery, k.ID, ka.AreaName)
+			for _, ka := range k.Areas {
+				_, err := db.ExecContext(ctx, knowledgeAreaQuery, k.ID, ka)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -142,13 +137,14 @@ func main() {
 
 		// Abilities
 		for _, a := range career.Abilities {
-			err := db.QueryRowxContext(ctx, abilityCategoryQuery, career.ID, a.CategoryName).Scan(&a.ID)
+			err := db.QueryRowxContext(ctx, abilityCategoryQuery, career.ID, a.Name).Scan(&a.ID)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			for _, aa := range a.AbilityAreas {
-				err := db.QueryRowxContext(ctx, abilityAreaQuery, a.ID, aa.AreaName)
+			for _, aa := range a.Areas {
+				fmt.Println(a, aa)
+				_, err := db.ExecContext(ctx, abilityAreaQuery, a.ID, aa)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -157,13 +153,13 @@ func main() {
 
 		// Skills
 		for _, s := range career.SkillCategories {
-			err := db.QueryRowxContext(ctx, skillCategoryQuery, career.ID, s.CategoryName).Scan(&s.ID)
+			err := db.QueryRowxContext(ctx, skillCategoryQuery, career.ID, s.Name).Scan(&s.ID)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			for _, sa := range s.SkillAreas {
-				err := db.QueryRowxContext(ctx, skillAreaQuery, s.ID, sa.AreaName)
+			for _, sa := range s.Areas {
+				_, err := db.ExecContext(ctx, skillAreaQuery, s.ID, sa)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -172,13 +168,13 @@ func main() {
 
 		// Technology
 		for _, t := range career.TecnologyCategories {
-			err := db.QueryRowxContext(ctx, technologyCategoryQuery, career.ID, t.CategoryName).Scan(&t.ID)
+			err := db.QueryRowxContext(ctx, technologyCategoryQuery, career.ID, t.Name).Scan(&t.ID)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			for _, ta := range t.TechnologyAreas {
-				err := db.QueryRowxContext(ctx, technologyAreaQuery, t.ID, ta.AreaName)
+			for _, ta := range t.Areas {
+				_, err := db.ExecContext(ctx, technologyAreaQuery, t.ID, ta)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -186,8 +182,8 @@ func main() {
 		}
 
 		// Personality
-		for _, p := range career.PersonalityAttributes {
-			err := db.QueryRowxContext(ctx, personalityAtributesQuery, career.ID, p.AttributeName).Scan(&p.ID)
+		for _, p := range career.Personality.Attributes {
+			_, err := db.ExecContext(ctx, personalityAttributesQuery, career.ID, p)
 			if err != nil {
 				log.Fatal(err)
 			}

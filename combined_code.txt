@@ -1,0 +1,4121 @@
+
+// File: ./Backend/users/user_model.go
+
+package users
+
+import "time"
+
+type User struct {
+	Id        int64     `db:"id" json:"id,omitempty"`
+	ClerkId   string    `db:"clerk_id" json:"-"`
+	Email     string    `db:"email" json:"email"`
+	Name      string    `db:"name" json:"name"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	Version   int       `db:"version" json:"-"`
+}
+
+// File: ./Backend/users/user_service.go
+
+package users
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/colmedev/IA-KuroJam/Backend/validator"
+	"github.com/jmoiron/sqlx"
+)
+
+var (
+	UserValidationError = errors.New("user data is not valid")
+)
+
+var AnonymousUser = User{}
+
+func (u *User) IsAnonymous() bool {
+	return u == &AnonymousUser
+}
+
+type Service interface {
+	Insert(ctx context.Context, u *User) (error, map[string]string)
+	Update(ctx context.Context, u *User) (error, map[string]string)
+	FindById(ctx context.Context, userId int64) (*User, error)
+	FindByGoogleId(ctx context.Context, userId string) (*User, error)
+}
+
+type UserService struct {
+	store store
+}
+
+func NewService(db *sqlx.DB) (*UserService, error) {
+	us := newUserStore(db)
+
+	return &UserService{
+		store: us,
+	}, nil
+}
+
+// TODO: Finish user validation
+func validateUser(v *validator.Validator, u *User) {
+	// v.Check(u.Name != "", "name", "must be provided")
+	// v.Check(len(u.Name) < 60, "name", "must not be more than 50 characters")
+	// v.Check(validator.Matches(u.Email, validator.EmailRX), "email", "must be a valid email address")
+}
+
+func (us *UserService) Insert(ctx context.Context, u *User) (error, map[string]string) {
+	v := validator.New()
+
+	if validateUser(v, u); !v.Valid() {
+		return UserValidationError, v.Errors
+	}
+
+	err := us.store.Insert(ctx, u)
+	if err != nil {
+		return fmt.Errorf("UserService: user creation failed: %w", err), nil
+	}
+
+	return nil, nil
+}
+
+func (us *UserService) Update(ctx context.Context, u *User) (error, map[string]string) {
+	v := validator.New()
+
+	if validateUser(v, u); !v.Valid() {
+		return UserValidationError, v.Errors
+	}
+
+	err := us.store.Insert(ctx, u)
+	if err != nil {
+		return fmt.Errorf("UserService: user creation failed: %w", err), nil
+	}
+
+	return nil, nil
+}
+
+func (us *UserService) FindById(ctx context.Context, userId int64) (*User, error) {
+	return nil, nil
+}
+
+func (us *UserService) FindByGoogleId(ctx context.Context, userId string) (*User, error) {
+	return us.store.ReadByGoogleId(ctx, userId)
+}
+
+// File: ./Backend/users/user_store.go
+
+package users
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/jmoiron/sqlx"
+)
+
+type store interface {
+	Insert(ctx context.Context, u *User) error
+	Update(ctx context.Context, u *User) error
+	ReadById(ctx context.Context, userId int64) (*User, error)
+	ReadByGoogleId(ctx context.Context, googleId string) (*User, error)
+}
+
+type userStore struct {
+	db *sqlx.DB
+}
+
+var (
+	ErrInsertingUser  = errors.New("error inserting user")
+	ErrUpdatingUser   = errors.New("error updating user")
+	ErrEditConflict   = errors.New("error conflict user")
+	ErrFetchingUser   = errors.New("error fetching user")
+	ErrRecordNotFound = errors.New("error record not found")
+)
+
+func newUserStore(db *sqlx.DB) *userStore {
+	return &userStore{
+		db: db,
+	}
+}
+
+func (us *userStore) Insert(ctx context.Context, u *User) error {
+	query := `INSERT INTO users (clerk_id)
+				VALUES ($1)
+				RETURNING id`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	err := us.db.QueryRowxContext(ctx, query, u.ClerkId).Scan(&u.Id)
+	if err != nil {
+		return fmt.Errorf("%w: error executing query db:%w", ErrInsertingUser, err)
+	}
+
+	return nil
+}
+
+func (us *userStore) Update(ctx context.Context, u *User) error {
+	query := `UPDATE users SET
+		version = version + 1
+		RETURNING version`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	err := us.db.QueryRowxContext(ctx, query, u).Scan(&u.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return fmt.Errorf("%w: error executing query db: %w", ErrUpdatingUser, err)
+
+		}
+	}
+
+	return nil
+}
+
+func (us *userStore) ReadById(ctx context.Context, id int64) (*User, error) {
+	query := `SELECT id, clerk_id, created_at, updated_at, version
+			FROM users
+			WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	var user User
+
+	err := us.db.QueryRowxContext(ctx, query, id).Scan(&user.Id)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, fmt.Errorf("%w: error fetching user (id: %v) db: %w", ErrRecordNotFound, id, err)
+		default:
+			return nil, fmt.Errorf("%w: error executing query db: %w", ErrFetchingUser, err)
+
+		}
+	}
+
+	return &user, nil
+}
+
+func (us *userStore) ReadByGoogleId(ctx context.Context, googleId string) (*User, error) {
+	query := `SELECT id, clerk_id, created_at, updated_at, version
+			FROM users
+			WHERE clerk_id = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	var user User
+
+	err := us.db.QueryRowxContext(ctx, query, googleId).StructScan(&user)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, fmt.Errorf("%w: error fetching user (id: %v) db: %w", ErrRecordNotFound, googleId, err)
+		default:
+			return nil, fmt.Errorf("%w: error executing query db: %w", ErrFetchingUser, err)
+		}
+	}
+
+	return &user, nil
+}
+
+// File: ./Backend/cmd/json-converter/main.go
+
+package main
+
+import (
+	"bufio"
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+)
+
+// Original struct for reading JSON
+type OriginalCareer struct {
+	Title         string              `json:"title"`
+	Description   string              `json:"description"`
+	Tasks         []string            `json:"tasks"`
+	Knowledge     map[string]Category `json:"knowledge"`
+	Capacities    map[string]Category `json:"capacities"`
+	Skills        map[string]Category `json:"skills"`
+	Technology    map[string]Category `json:"technology"`
+	Personality   Personality         `json:"personality"`
+	Education     string              `json:"education"`
+	AverageSalary string              `json:"averageSalary"`
+	LowerSalary   string              `json:"lowerSalary"`
+	HighestSalary string              `json:"highestSalary"`
+}
+
+type Category struct {
+	Name  string   `json:"name"`
+	Areas []string `json:"areas"`
+}
+
+type Personality struct {
+	Description string   `json:"description"`
+	Attributes  []string `json:"attributes"`
+}
+
+// Final struct for writing JSON
+type FinalCareer struct {
+	Title         string      `json:"title"`
+	Description   string      `json:"description"`
+	Tasks         []string    `json:"tasks"`
+	Knowledge     []Category  `json:"knowledge"`
+	Capacities    []Category  `json:"capacities"`
+	Skills        []Category  `json:"skills"`
+	Technology    []Category  `json:"technology"`
+	Personality   Personality `json:"personality"`
+	Education     string      `json:"education"`
+	AverageSalary string      `json:"averageSalary"`
+	LowerSalary   string      `json:"lowerSalary"`
+	HighestSalary string      `json:"highestSalary"`
+}
+
+func main() {
+	// Open the file for reading
+	file, err := os.Open("./careers.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	// Scanner to read the file line by line
+	scanner := bufio.NewScanner(file)
+
+	var finalCareers []FinalCareer
+
+	// Process each line
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Unmarshal the original JSON into the original struct
+		var original OriginalCareer
+		err := json.Unmarshal([]byte(line), &original)
+		if err != nil {
+			fmt.Println("Error unmarshaling JSON:", err)
+			continue
+		}
+
+		// Convert to the final structure
+		finalCareers = append(finalCareers, FinalCareer{
+			Title:         original.Title,
+			Description:   original.Description,
+			Tasks:         original.Tasks,
+			Knowledge:     convertMapToArray(original.Knowledge),
+			Capacities:    convertMapToArray(original.Capacities),
+			Skills:        convertMapToArray(original.Skills),
+			Technology:    convertMapToArray(original.Technology),
+			Personality:   original.Personality,
+			Education:     original.Education,
+			AverageSalary: original.AverageSalary,
+			LowerSalary:   original.LowerSalary,
+			HighestSalary: original.HighestSalary,
+		})
+	}
+
+	// Check for errors during the scan
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	// Open a new file for writing the processed JSON data
+	outputFile, err := os.Create("processed_careers.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer outputFile.Close()
+
+	// Write each final career struct as a JSON object on a new line
+	for _, c := range finalCareers {
+		data, err := json.Marshal(c)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = outputFile.WriteString(string(data) + "\n")
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	fmt.Println("Successfully converted and saved the JSON data.")
+}
+
+// Helper function to convert map to an array of categories
+func convertMapToArray(inputMap map[string]Category) []Category {
+	var outputArray []Category
+	for _, value := range inputMap {
+		outputArray = append(outputArray, value)
+	}
+	return outputArray
+}
+
+// File: ./Backend/cmd/dataloader/main.go
+
+package main
+
+import (
+	"bufio"
+	"context"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"log"
+	"os"
+	"time"
+
+	"github.com/colmedev/IA-KuroJam/Backend/careers"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"github.com/pgvector/pgvector-go"
+	openai "github.com/sashabaranov/go-openai"
+)
+
+func main() {
+	dbDsn := ""
+	maxOpenConns := 25
+	maxIdleConns := 25
+	maxIdleTime := "15m"
+	llmApiKey := ""
+
+	flag.StringVar(&dbDsn, "db-dsn", "falso", "PostgreSQL DSN")
+	flag.StringVar(&llmApiKey, "llm-api-key", "", "LLM API Key")
+
+	flag.Parse()
+
+	db, err := openDb(dbDsn, maxOpenConns, maxIdleConns, maxIdleTime)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client := openai.NewClient(llmApiKey)
+
+	file, err := os.Open("./processed_careers.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	careerQuery := `INSERT INTO careers (title, description, personality_description,
+		education, average_salary, lower_salary, highest_salary, embedding)
+		VALUES
+		(:title, :description, :personality_description, :education,
+			:average_salary, :lower_salary, :highest_salary, :embedding)
+		RETURNING id`
+
+	preparedCareerQuery, err := db.PrepareNamed(careerQuery)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tasksQuery := `INSERT INTO tasks (career_id, task_description)
+		VALUES ($1, $2)`
+
+	knowledgeCategoryQuery := `INSERT INTO knowledge_categories
+		(career_id, category_name) VALUES ($1, $2)
+		RETURNING id`
+
+	knowledgeAreaQuery := `INSERT INTO knowledge_areas
+		(category_id, area_name) VALUES($1, $2)`
+
+	abilityCategoryQuery := `INSERT INTO ability_categories
+		(career_id, category_name) VALUES ($1, $2)
+		RETURNING id`
+
+	abilityAreaQuery := `INSERT INTO ability_areas
+		(category_id, area_name) VALUES ($1, $2)`
+
+	skillCategoryQuery := `INSERT INTO skill_categories
+		(career_id, category_name) VALUES ($1, $2)
+		RETURNING id`
+
+	skillAreaQuery := `INSERT INTO skill_areas
+		(category_id, area_name) VALUES ($1, $2)`
+
+	technologyCategoryQuery := `INSERT INTO technology_categories
+		(career_id, category_name) VALUES ($1, $2)
+		RETURNING id`
+
+	technologyAreaQuery := `INSERT INTO technology_areas
+		(category_id, area_name) VALUES ($1, $2)`
+
+	personalityAttributesQuery := `INSERT INTO personality_attributes
+		(career_id, attribute_name) VALUES ($1, $2)`
+
+	for scanner.Scan() {
+		line := scanner.Bytes()
+
+		embedding := getDataEmbedding(client, string(line))
+
+		var career careers.Career
+
+		err := json.Unmarshal(line, &career)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		career.Embedding = pgvector.NewVector(embedding)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		err = preparedCareerQuery.QueryRowxContext(ctx, career).Scan(&career.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Tasks
+		for _, t := range career.TasksString {
+			_, err := db.ExecContext(ctx, tasksQuery, career.ID, t)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		// Knowledge
+		for _, k := range career.Knowledge {
+			err := db.QueryRowxContext(ctx, knowledgeCategoryQuery, career.ID, k.Name).Scan(&k.ID)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			for _, ka := range k.Areas {
+				_, err := db.ExecContext(ctx, knowledgeAreaQuery, k.ID, ka)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+		}
+
+		// Abilities
+		for _, a := range career.Abilities {
+			err := db.QueryRowxContext(ctx, abilityCategoryQuery, career.ID, a.Name).Scan(&a.ID)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			for _, aa := range a.Areas {
+				fmt.Println(a, aa)
+				_, err := db.ExecContext(ctx, abilityAreaQuery, a.ID, aa)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+		}
+
+		// Skills
+		for _, s := range career.SkillCategories {
+			err := db.QueryRowxContext(ctx, skillCategoryQuery, career.ID, s.Name).Scan(&s.ID)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			for _, sa := range s.Areas {
+				_, err := db.ExecContext(ctx, skillAreaQuery, s.ID, sa)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+		}
+
+		// Technology
+		for _, t := range career.TecnologyCategories {
+			err := db.QueryRowxContext(ctx, technologyCategoryQuery, career.ID, t.Name).Scan(&t.ID)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			for _, ta := range t.Areas {
+				_, err := db.ExecContext(ctx, technologyAreaQuery, t.ID, ta)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+		}
+
+		// Personality
+		for _, p := range career.Personality.Attributes {
+			_, err := db.ExecContext(ctx, personalityAttributesQuery, career.ID, p)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+
+}
+
+func getDataEmbedding(client *openai.Client, str string) []float32 {
+	queryReq := openai.EmbeddingRequest{
+		Input: []string{str},
+		Model: openai.LargeEmbedding3,
+	}
+
+	queryResponse, err := client.CreateEmbeddings(context.Background(), queryReq)
+	if err != nil {
+		log.Fatal("Error creating query embedding:", err)
+	}
+
+	return queryResponse.Data[0].Embedding
+}
+
+func openDb(dbDsn string, maxOpenConns int, maxIdleConns int, maxIdleTime string) (*sqlx.DB, error) {
+	fmt.Println(dbDsn)
+	db, err := sqlx.Open("postgres", dbDsn)
+	if err != nil {
+		return nil, err
+	}
+
+	db.SetMaxOpenConns(maxOpenConns)
+	db.SetMaxIdleConns(maxIdleConns)
+
+	duration, err := time.ParseDuration(maxIdleTime)
+	if err != nil {
+		return nil, err
+	}
+
+	db.SetConnMaxIdleTime(duration)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
+// File: ./Backend/cmd/backend/main.go
+
+package main
+
+import (
+	"log"
+
+	"github.com/colmedev/IA-KuroJam/Backend/server"
+)
+
+var (
+	version = "0.0.1"
+)
+
+func main() {
+	err := server.StartServer()
+	if err != nil {
+		log.Fatal("error starting app", err)
+	}
+}
+
+// File: ./Backend/cmd/similarity-search-example/main.go
+
+package main
+
+import (
+	"context"
+	"flag"
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/colmedev/IA-KuroJam/Backend/careers"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"github.com/pgvector/pgvector-go"
+	"github.com/sashabaranov/go-openai"
+)
+
+func main() {
+	dbDsn := ""
+	maxOpenConns := 25
+	maxIdleConns := 25
+	maxIdleTime := "15m"
+	llmApiKey := ""
+	inputText := ""
+
+	flag.StringVar(&dbDsn, "db-dsn", "", "PostgreSQL DSN")
+	flag.StringVar(&llmApiKey, "llm-api-key", "", "LLM API Key")
+	flag.StringVar(&inputText, "input-text", "", "Query Input Text")
+
+	flag.Parse()
+
+	db, err := openDb(dbDsn, maxOpenConns, maxIdleConns, maxIdleTime)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client := openai.NewClient(llmApiKey)
+
+	em := getDataEmbedding(client, inputText)
+
+	v := pgvector.NewVector(em)
+
+	query := `SELECT title FROM careers ORDER BY embedding <=> $1 LIMIT 10`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := db.QueryxContext(ctx, query, v)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var career careers.Career
+
+		if err := rows.Scan(&career.Title); err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(career.Title)
+	}
+
+}
+
+func getDataEmbedding(client *openai.Client, str string) []float32 {
+	queryReq := openai.EmbeddingRequest{
+		Input: []string{str},
+		Model: openai.LargeEmbedding3,
+	}
+
+	queryResponse, err := client.CreateEmbeddings(context.Background(), queryReq)
+	if err != nil {
+		log.Fatal("Error creating query embedding:", err)
+	}
+
+	return queryResponse.Data[0].Embedding
+}
+
+func openDb(dbDsn string, maxOpenConns int, maxIdleConns int, maxIdleTime string) (*sqlx.DB, error) {
+	fmt.Println(dbDsn)
+	db, err := sqlx.Open("postgres", dbDsn)
+	if err != nil {
+		return nil, err
+	}
+
+	db.SetMaxOpenConns(maxOpenConns)
+	db.SetMaxIdleConns(maxIdleConns)
+
+	duration, err := time.ParseDuration(maxIdleTime)
+	if err != nil {
+		return nil, err
+	}
+
+	db.SetConnMaxIdleTime(duration)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
+// File: ./Backend/cmd/scrapper/main.go
+
+package main
+
+import (
+	"encoding/json"
+	"log"
+	"os"
+	"regexp"
+	"slices"
+	"strings"
+	"sync"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/gocolly/colly"
+)
+
+var (
+	dynamicURLPattern = regexp.MustCompile(`^https://www\.miproximopaso\.org/profile/summary.*`)
+	mainUrl           = "https://www.miproximopaso.org/find/browse?c=0"
+	// mainUrl = "https://www.miproximopaso.org/profile/summary/49-9063.00"
+)
+
+type dataMessage struct {
+	id       string
+	field    string
+	value    string
+	subField string
+}
+
+type sectionCatgegories struct {
+	Name  string   `json:"name"`
+	Areas []string `json:"areas"`
+}
+
+type personality struct {
+	Description string   `json:"description"`
+	Attributes  []string `json:"attributes"`
+}
+
+type career struct {
+	Title         string                        `json:"title"`
+	Description   string                        `json:"description"`
+	Tasks         []string                      `json:"tasks"`
+	Knowledge     map[string]sectionCatgegories `json:"knowledge"`
+	Capacities    map[string]sectionCatgegories `json:"capacities"`
+	Skills        map[string]sectionCatgegories `json:"skills"`
+	Technology    map[string]sectionCatgegories `json:"technology"`
+	Personality   personality                   `json:"personality"`
+	Education     string                        `json:"education"`
+	AverageSalary string                        `json:"averageSalary"`
+	LowerSalary   string                        `json:"lowerSalary"`
+	HighestSalary string                        `json:"highestSalary"`
+}
+
+func saveData(e *colly.HTMLElement, field string, value string, dataCollector chan dataMessage, wg *sync.WaitGroup) {
+	wg.Add(1)
+	currentUrl := e.Request.URL.String()
+
+	splitUrl := strings.Split(currentUrl, "/")
+
+	id := splitUrl[len(splitUrl)-1]
+
+	dm := dataMessage{
+		id:    id,
+		field: field,
+		value: value,
+	}
+
+	if value == "" && field != "education" {
+		log.Fatalf("error getting %s from %s", field, currentUrl)
+	}
+
+	dataCollector <- dm
+	wg.Done()
+}
+
+func saveSectionCategory(e *colly.HTMLElement, field string, category string, value string, dataCollector chan dataMessage, wg *sync.WaitGroup) {
+	wg.Add(1)
+	currentUrl := e.Request.URL.String()
+
+	splitUrl := strings.Split(currentUrl, "/")
+
+	id := splitUrl[len(splitUrl)-1]
+
+	dm := dataMessage{
+		id:       id,
+		field:    field,
+		subField: category,
+		value:    value,
+	}
+
+	if value == "" {
+		log.Fatalf("error getting %s's %s from %s", field, category, currentUrl)
+	}
+
+	dataCollector <- dm
+	wg.Done()
+}
+
+func main() {
+	c := colly.NewCollector()
+	dataCollectorChan := make(chan dataMessage)
+	var wg sync.WaitGroup
+
+	c.OnHTML(".list-group-item", func(e *colly.HTMLElement) {
+		currentUrl := e.Request.URL.String()
+
+		if currentUrl == mainUrl {
+			link := e.ChildAttr("a", "href")
+			fullLink := e.Request.AbsoluteURL(link)
+
+			e.Request.Visit(fullLink)
+		}
+	})
+
+	c.OnHTML("h1.h1-pre-printshare", func(e *colly.HTMLElement) {
+
+		if !isCareerpage(e) {
+			return
+		}
+
+		careerTitle := e.ChildText("span.main")
+
+		saveData(e, "title", careerTitle, dataCollectorChan, &wg)
+	})
+
+	c.OnHTML("div.fw-bold", func(e *colly.HTMLElement) {
+		if !isCareerpage(e) {
+			return
+		}
+
+		if e.Text == "Lo que hacen:" {
+			parentDiv := e.DOM.Parent()
+
+			jobDescription := parentDiv.Contents().Text()
+
+			jobDescription = strings.Replace(jobDescription, "Lo que hacen:", "", 1)
+
+			jobDescription = strings.TrimSpace(jobDescription)
+
+			saveData(e, "description", jobDescription, dataCollectorChan, &wg)
+		}
+	})
+
+	c.OnHTML("div.fw-bold", func(e *colly.HTMLElement) {
+		if !isCareerpage(e) {
+			return
+		}
+
+		if e.Text == "En el trabajo, usted:" {
+			parentDiv := e.DOM.Parent()
+
+			parentDiv.Find("ul li").Each(func(_ int, el *goquery.Selection) {
+				task := strings.TrimSpace(el.Text())
+				saveData(e, "task", task, dataCollectorChan, &wg)
+			})
+		}
+	})
+
+	c.OnHTML("div.report-section", func(e *colly.HTMLElement) {
+		if !isCareerpage(e) {
+			return
+		}
+
+		sectionTitle := strings.TrimSpace(e.ChildText("h2"))
+
+		bulletedSections := []string{"Conocimiento", "Aptitudes", "Habilidades", "Tecnología"}
+		if slices.Contains(bulletedSections, sectionTitle) {
+			e.ForEach("h3.seclist", func(_ int, el *colly.HTMLElement) {
+				seclistTitle := strings.TrimSpace(el.Text)
+
+				el.DOM.NextFiltered("ul.subsec").Find("li").Each(func(i int, s *goquery.Selection) {
+					subsecItem := strings.TrimSpace(s.Text())
+
+					if subsecItem != "" {
+						field := ""
+						switch sectionTitle {
+						case "Conocimiento":
+							field = "knowledge"
+						case "Aptitudes":
+							field = "capacities"
+						case "Habilidades":
+							field = "skills"
+						case "Tecnología":
+							field = "technology"
+						}
+
+						saveSectionCategory(e, field, seclistTitle, subsecItem, dataCollectorChan, &wg)
+					}
+				})
+			})
+		} else if sectionTitle == "Personalidad" {
+			sectionDescription := strings.TrimSpace(e.DOM.Find("h2").Next().Text())
+
+			saveData(e, "personality-description", sectionDescription, dataCollectorChan, &wg)
+
+			e.ForEach("div.col-md-6 ul.my-0 li", func(i int, el *colly.HTMLElement) {
+				subsecItem := strings.TrimSpace(el.Text)
+				saveData(e, "personality-item", subsecItem, dataCollectorChan, &wg)
+			})
+		} else if sectionTitle == "Educación" {
+			educationText := ""
+
+			e.DOM.Find("div.zone-box-wrapper").Children().Each(func(i int, s *goquery.Selection) {
+				if !s.HasClass("mb-2") {
+					educationText = strings.TrimSpace(s.Text())
+				}
+			})
+
+			saveData(e, "education", educationText, dataCollectorChan, &wg)
+		} else if sectionTitle == "Perspectiva laboral" {
+			laboralPerspective := e.ChildText("div.text-center.h4.m-0")
+			saveData(e, "laboralPerspective", laboralPerspective, dataCollectorChan, &wg)
+
+			e.DOM.Find("div.salary-wrapper").Each(func(i int, s *goquery.Selection) {
+				s.Find("a[role='button']").Each(func(i int, sel *goquery.Selection) {
+					salaryText := strings.TrimSpace(sel.Text())
+					salaryDescription, exists := sel.Attr("data-bs-title")
+
+					if exists {
+						if strings.Contains(salaryDescription, "promedio") {
+							saveData(e, "averageSalary", salaryText, dataCollectorChan, &wg)
+						} else if strings.Contains(salaryDescription, "menos") {
+							saveData(e, "lowerSalary", salaryText, dataCollectorChan, &wg)
+						} else if strings.Contains(salaryDescription, "más") {
+							saveData(e, "highestSalary", salaryText, dataCollectorChan, &wg)
+						}
+					}
+				})
+			})
+
+		}
+	})
+
+	// Start data collector
+
+	wg.Add(1)
+	go func() {
+		dataCollector(dataCollectorChan)
+		wg.Done()
+	}()
+
+	c.Visit(mainUrl)
+
+	close(dataCollectorChan)
+
+	wg.Wait()
+}
+
+func isCareerpage(e *colly.HTMLElement) bool {
+	return dynamicURLPattern.MatchString(e.Request.URL.String())
+}
+
+func dataCollector(collectorChannel <-chan dataMessage) {
+	careers := make(map[string]career, 957)
+
+	for dm := range collectorChannel {
+		c, ok := careers[dm.id]
+
+		if !ok {
+			c = career{
+				Knowledge:  make(map[string]sectionCatgegories),
+				Capacities: make(map[string]sectionCatgegories),
+				Skills:     make(map[string]sectionCatgegories),
+				Technology: make(map[string]sectionCatgegories),
+			}
+		}
+
+		switch dm.field {
+		case "title":
+			c.Title = dm.value
+		case "description":
+			c.Description = dm.value
+		case "task":
+			c.Tasks = append(c.Tasks, dm.value)
+		case "knowledge":
+			sectionCategory, ok := c.Knowledge[dm.subField]
+			if !ok {
+				sectionCategory = sectionCatgegories{
+					Name: dm.subField,
+				}
+			}
+
+			sectionCategory.Areas = append(sectionCategory.Areas, dm.value)
+
+			c.Knowledge[dm.subField] = sectionCategory
+		case "capacities":
+			sectionCategory, ok := c.Capacities[dm.subField]
+			if !ok {
+				sectionCategory = sectionCatgegories{
+					Name: dm.subField,
+				}
+			}
+
+			sectionCategory.Areas = append(sectionCategory.Areas, dm.value)
+
+			c.Capacities[dm.subField] = sectionCategory
+		case "skills":
+			sectionCategory, ok := c.Skills[dm.subField]
+			if !ok {
+				sectionCategory = sectionCatgegories{
+					Name: dm.subField,
+				}
+			}
+
+			sectionCategory.Areas = append(sectionCategory.Areas, dm.value)
+
+			c.Skills[dm.subField] = sectionCategory
+		case "technology":
+			sectionCategory, ok := c.Technology[dm.subField]
+			if !ok {
+				sectionCategory = sectionCatgegories{
+					Name: dm.subField,
+				}
+			}
+
+			sectionCategory.Areas = append(sectionCategory.Areas, dm.value)
+
+			c.Technology[dm.subField] = sectionCategory
+		case "personality-description":
+			c.Personality.Description = dm.value
+		case "personality-item":
+			c.Personality.Attributes = append(c.Personality.Attributes, dm.value)
+		case "education":
+			c.Education = dm.value
+		case "averageSalary":
+			c.AverageSalary = dm.value
+		case "lowerSalary":
+			c.LowerSalary = dm.value
+		case "highestSalary":
+			c.HighestSalary = dm.value
+		}
+
+		careers[dm.id] = c
+	}
+
+	file, err := os.Create("careers.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	for _, c := range careers {
+		data, err := json.Marshal(c)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = file.WriteString(string(data) + "\n")
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	log.Println("Data successfully written to careers.json")
+}
+
+// File: ./Backend/api/errors.go
+
+package api
+
+import (
+	"fmt"
+	"net/http"
+)
+
+func (app *Api) LogError(r *http.Request, err error) {
+	app.Logger.Error(
+		err.Error(),
+		"request_method", r.Method,
+		"request_url", r.URL.String(),
+	)
+}
+
+func (app *Api) ErrorResponse(w http.ResponseWriter, r *http.Request, status int, message any) {
+	env := Envelope{"error": message}
+
+	err := app.WriteJSON(w, status, env, nil)
+	if err != nil {
+		app.LogError(r, err)
+		w.WriteHeader(500)
+	}
+}
+
+func (app *Api) ServerErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
+	app.LogError(r, err)
+
+	message := "the server encountered a problem and could not process your request"
+	app.ErrorResponse(w, r, http.StatusInternalServerError, message)
+}
+
+func (app *Api) NotFoundResponse(w http.ResponseWriter, r *http.Request) {
+	message := "the requested resource could not be found"
+	app.ErrorResponse(w, r, http.StatusNotFound, message)
+}
+
+func (app *Api) MethodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
+	message := fmt.Sprintf("the %s method is not supported for this resource", r.Method)
+	app.ErrorResponse(w, r, http.StatusMethodNotAllowed, message)
+}
+
+func (app *Api) BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+	app.ErrorResponse(w, r, http.StatusBadRequest, err.Error())
+}
+
+func (app *Api) FailedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
+	app.ErrorResponse(w, r, http.StatusUnprocessableEntity, errors)
+}
+
+func (app *Api) EditConflictResponse(w http.ResponseWriter, r *http.Request) {
+	message := "unable to update the record due to an edit conflict, please try again"
+	app.ErrorResponse(w, r, http.StatusConflict, message)
+}
+
+func (app *Api) RateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
+	message := "rate limit exceeded"
+	app.ErrorResponse(w, r, http.StatusTooManyRequests, message)
+}
+
+func (app *Api) InvalidCredentialsResponse(w http.ResponseWriter, r *http.Request) {
+	message := "invalid authentication credentials"
+	app.ErrorResponse(w, r, http.StatusUnauthorized, message)
+}
+
+func (app *Api) InvalidAuthenticationTokenResponse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("WWW-Authenticate", "Bearer")
+
+	message := "invalid or missing authentication token"
+	app.ErrorResponse(w, r, http.StatusUnauthorized, message)
+}
+
+func (app *Api) AuthenticationRequiredResponse(w http.ResponseWriter, r *http.Request) {
+	message := "you must be authenticated to access this resource"
+	app.ErrorResponse(w, r, http.StatusUnauthorized, message)
+}
+
+func (app *Api) InactiveAccountResponse(w http.ResponseWriter, r *http.Request) {
+	message := "your user account must be activated to access this resource"
+	app.ErrorResponse(w, r, http.StatusForbidden, message)
+}
+
+func (app *Api) NotPermittedResponse(w http.ResponseWriter, r *http.Request) {
+	message := "your user account doesn't have the necessary permissions to access this resource"
+	app.ErrorResponse(w, r, http.StatusForbidden, message)
+}
+
+// File: ./Backend/api/helpers.go
+
+package api
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/colmedev/IA-KuroJam/Backend/validator"
+)
+
+type Envelope map[string]any
+
+func (app *Api) WriteJSON(w http.ResponseWriter, status int, data Envelope, headers http.Header) error {
+	js, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		return nil
+	}
+
+	js = append(js, '\n')
+
+	for key, value := range headers {
+		w.Header()[key] = value
+	}
+
+	w.Header().Set("Content-Type", "Application/json")
+	w.WriteHeader(status)
+	w.Write(js)
+
+	return nil
+}
+
+func (app *Api) ReadJSON(w http.ResponseWriter, r *http.Request, dst any) error {
+	maxBytes := 1_048_576
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
+
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+
+	err := json.NewDecoder(r.Body).Decode(dst)
+	if err != nil {
+		var syntaxError *json.SyntaxError
+		var unmarshalTypeError *json.UnmarshalTypeError
+		var invalidUnmarshalError *json.InvalidUnmarshalError
+		var maxBytesError *http.MaxBytesError
+
+		switch {
+		case errors.As(err, &syntaxError):
+			return fmt.Errorf("body contains badly-formed JSON (at character %d)", syntaxError.Offset)
+
+		case errors.Is(err, io.ErrUnexpectedEOF):
+			return errors.New("body contains badly-formed JSON")
+
+		case errors.As(err, &unmarshalTypeError):
+			if unmarshalTypeError.Field != "" {
+				return fmt.Errorf("body contains incorrect JSON type for field %q", unmarshalTypeError.Field)
+			}
+			return fmt.Errorf("body contains incorrect JSON type (at character %d)", unmarshalTypeError.Offset)
+
+		case errors.Is(err, io.EOF):
+			return errors.New("body must not be empty")
+
+		case strings.HasPrefix(err.Error(), "json: unknown field"):
+			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field")
+			return fmt.Errorf("body contains unknown key %s", fieldName)
+
+		case errors.As(err, &maxBytesError):
+			return fmt.Errorf("body must not be larger than %d bytes", maxBytesError.Limit)
+
+		case errors.As(err, &invalidUnmarshalError):
+			panic(err)
+
+		default:
+			return err
+		}
+	}
+
+	err = dec.Decode(&struct{}{})
+	if err != io.EOF {
+		return errors.New("body must only contain a single JSON value")
+	}
+
+	return nil
+}
+
+func (app *Api) ReadString(qs url.Values, key string, defaultValue string) string {
+	s := qs.Get(key)
+
+	if s == "" {
+		return defaultValue
+	}
+
+	return s
+}
+
+func (app *Api) ReadCSV(qs url.Values, key string, defaultValue []string) []string {
+	csv := qs.Get(key)
+
+	if csv == "" {
+		return defaultValue
+	}
+
+	return strings.Split(csv, ",")
+}
+
+func (app *Api) ReadInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
+	s := qs.Get(key)
+
+	if s == "" {
+		return defaultValue
+	}
+
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		v.AddError(key, "must be an integer value")
+		return defaultValue
+	}
+
+	return i
+}
+
+func (app *Api) Background(fn func()) {
+	app.Wg.Add(1)
+
+	go func() {
+		defer app.Wg.Done()
+
+		defer func() {
+			if err := recover(); err != nil {
+				app.Logger.Error(fmt.Errorf("%s", err).Error())
+			}
+		}()
+
+		fn()
+	}()
+}
+
+func (app *Api) SetRefreshTokenCookie(w http.ResponseWriter, refreshToken string, expiration time.Duration) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		HttpOnly: true,
+		Secure:   true,
+		Path:     "/",
+		Expires:  time.Now().Add(expiration),
+	})
+}
+
+// File: ./Backend/api/api.go
+
+package api
+
+import (
+	"log/slog"
+	"sync"
+
+	"github.com/colmedev/IA-KuroJam/Backend/careers"
+	"github.com/colmedev/IA-KuroJam/Backend/careertest"
+	"github.com/colmedev/IA-KuroJam/Backend/llm"
+	"github.com/colmedev/IA-KuroJam/Backend/users"
+	"github.com/jmoiron/sqlx"
+)
+
+type Api struct {
+	Config   Config
+	Logger   *slog.Logger
+	Wg       sync.WaitGroup
+	Services *Services
+}
+
+func NewApplication(cfg Config, db *sqlx.DB, logger *slog.Logger, options ...Option) *Api {
+
+	s := &Services{}
+	for _, option := range options {
+		option(s)
+	}
+
+	return &Api{
+		Logger:   logger,
+		Config:   cfg,
+		Services: s,
+	}
+}
+
+type Services struct {
+	UserService       users.Service
+	LlmService        llm.Service
+	CareerTestService careertest.Service
+	CareerService     careers.Service
+}
+
+// Passing services
+
+type Option func(*Services)
+
+func WithUserService(service users.Service) Option {
+	return func(s *Services) {
+		s.UserService = service
+	}
+}
+
+func WithLlmService(service llm.Service) Option {
+	return func(s *Services) {
+		s.LlmService = service
+	}
+}
+
+func WithCareerTestService(service careertest.Service) Option {
+	return func(s *Services) {
+		s.CareerTestService = service
+	}
+}
+
+func WithCareerService(service careers.Service) Option {
+	return func(s *Services) {
+		s.CareerService = service
+	}
+}
+
+// File: ./Backend/api/context.go
+
+package api
+
+import (
+	"context"
+	"net/http"
+
+	"github.com/colmedev/IA-KuroJam/Backend/users"
+)
+
+type contextKey string
+
+const userContextKey = contextKey("user")
+
+func (app *Api) ContextSetUser(r *http.Request, user *users.User) *http.Request {
+	ctx := context.WithValue(r.Context(), userContextKey, user)
+	return r.WithContext(ctx)
+}
+
+func (app *Api) ContextGetUser(r *http.Request) *users.User {
+	user, ok := r.Context().Value(userContextKey).(*users.User)
+	if !ok {
+		panic("missing user value in request context")
+	}
+
+	return user
+}
+
+// File: ./Backend/api/server.go
+
+package api
+
+import (
+	"context"
+	"time"
+
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+)
+
+func OpenDb(cfg Config) (*sqlx.DB, error) {
+
+	db, err := sqlx.Open("postgres", cfg.DB.DSN)
+	if err != nil {
+		return nil, err
+	}
+
+	db.SetMaxOpenConns(cfg.DB.MaxOpenConns)
+	db.SetMaxIdleConns(cfg.DB.MaxIdleConns)
+
+	duration, err := time.ParseDuration(cfg.DB.MaxIdleTime)
+	if err != nil {
+		return nil, err
+	}
+
+	db.SetConnMaxIdleTime(duration)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
+// File: ./Backend/api/config.go
+
+package api
+
+import "crypto/rsa"
+
+type Config struct {
+	Port int
+	Env  string
+	DB   struct {
+		DSN          string
+		MaxOpenConns int
+		MaxIdleConns int
+		MaxIdleTime  string
+	}
+	Limiter struct {
+		RPS     float64
+		Burst   int
+		Enabled bool
+	}
+	Cors struct {
+		TrustedOrigins []string
+	}
+	Auth struct {
+		SigningKey               *rsa.PublicKey
+		TokenExpirationInMinutes int
+	}
+	LlmApiKey string
+}
+
+// File: ./Backend/api/middleware.go
+
+package api
+
+import (
+	"errors"
+	"expvar"
+	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/colmedev/IA-KuroJam/Backend/users"
+	"github.com/felixge/httpsnoop"
+	"github.com/golang-jwt/jwt"
+	"github.com/tomasen/realip"
+	"golang.org/x/time/rate"
+)
+
+func (app *Api) RecoverPanic(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				w.Header().Set("Connection", "close")
+
+				app.ServerErrorResponse(w, r, fmt.Errorf("%s", err))
+			}
+		}()
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *Api) RateLimit(next http.Handler) http.Handler {
+	type client struct {
+		limiter  *rate.Limiter
+		lastSeen time.Time
+	}
+	var (
+		mu      sync.Mutex
+		clients = make(map[string]*client)
+	)
+
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+
+			mu.Lock()
+
+			for ip, client := range clients {
+				if time.Since(client.lastSeen) > 3*time.Minute {
+					delete(clients, ip)
+				}
+			}
+
+			mu.Unlock()
+
+		}
+	}()
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if app.Config.Limiter.Enabled {
+			ip := realip.FromRequest(r)
+
+			mu.Lock()
+
+			if _, found := clients[ip]; !found {
+				clients[ip] = &client{limiter: rate.NewLimiter(rate.Limit(app.Config.Limiter.RPS), app.Config.Limiter.Burst)}
+			}
+
+			clients[ip].lastSeen = time.Now()
+
+			if !clients[ip].limiter.Allow() {
+				mu.Unlock()
+				app.RateLimitExceededResponse(w, r)
+				return
+			}
+
+			mu.Unlock()
+
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *Api) Authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Vary", "Authorization")
+
+		authorizationHeader := r.Header.Get("Authorization")
+		if authorizationHeader == "" {
+			r = app.ContextSetUser(r, &users.AnonymousUser)
+			next.ServeHTTP(w, r)
+
+			return
+		}
+
+		headerParts := strings.Split(authorizationHeader, " ")
+		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+			app.Logger.Debug("Empty token")
+			app.InvalidCredentialsResponse(w, r)
+
+			return
+		}
+
+		tokenString := headerParts[1]
+
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+
+			return app.Config.Auth.SigningKey, nil
+		})
+
+		if err != nil || !token.Valid {
+
+			if err.Error() != "Token is not valid yet" {
+				fmt.Println(err.Error())
+				app.Logger.Debug("invalid token", err)
+				app.InvalidAuthenticationTokenResponse(w, r)
+				return
+			}
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok || !token.Valid {
+
+			if err.Error() != "Token is not valid yet" {
+				app.Logger.Debug("invalid claims", err)
+				app.InvalidAuthenticationTokenResponse(w, r)
+				return
+			}
+		}
+
+		userID := claims["sub"].(string)
+
+		user, err := app.Services.UserService.FindByGoogleId(r.Context(), userID)
+
+		if err != nil {
+			if errors.Is(err, users.ErrRecordNotFound) {
+				user := &users.User{
+					ClerkId: userID,
+				}
+
+				err, _ = app.Services.UserService.Insert(r.Context(), user)
+				if err != nil {
+					fmt.Println("Here inside", err)
+
+					app.Logger.Debug("error creating user", err)
+					app.InvalidCredentialsResponse(w, r)
+					return
+				}
+			} else {
+				fmt.Println("Here inside 2", err)
+
+				app.Logger.Debug("error getting user", err)
+				app.InvalidCredentialsResponse(w, r)
+				return
+			}
+		}
+
+		r = app.ContextSetUser(r, user)
+		next.ServeHTTP(w, r)
+	})
+}
+
+// Create a new requireAuthenticatedUser() middleware to check that a user is not anonymous.
+func (app *Api) RequireAuthenticatedUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := app.ContextGetUser(r)
+
+		if user.IsAnonymous() {
+			app.AuthenticationRequiredResponse(w, r)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// func (app *Api) requirePermission(code string, next http.HandlerFunc) http.HandlerFunc {
+// 	fn := func(w http.ResponseWriter, r *http.Request) {
+// 		user := app.contextGetUser(r)
+//
+// 		permissions, err := app.Services.Permissions.GetAllForUser(user.ID)
+// 		if err != nil {
+// 			app.ServerErrorResponse(w, r, err)
+// 			return
+// 		}
+//
+// 		if !permissions.Include(code) {
+// 			app.NotPermittedResponse(w, r)
+// 			return
+// 		}
+//
+// 		next.ServeHTTP(w, r)
+// 	}
+//
+// 	return app.requireActivatedUser(fn)
+// }
+
+func (app *Api) EnableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Vary", "Origin")
+
+		w.Header().Add("Vary", "Origin")
+
+		origin := r.Header.Get("Origin")
+
+		if origin != "" {
+			for i := range app.Config.Cors.TrustedOrigins {
+				if origin == app.Config.Cors.TrustedOrigins[i] {
+					w.Header().Set("Access-Control-Allow-Origin", origin)
+
+					if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
+						w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT, PATCH, DELETE")
+						w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+						w.WriteHeader(http.StatusOK)
+						return
+					}
+					break
+				}
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *Api) Metrics(next http.Handler) http.Handler {
+	totalRequestsReceived := expvar.NewInt("total_requests_received")
+	totalResponsesSent := expvar.NewInt("total_responses_sent")
+	totalProcessingTimeMicroseconds := expvar.NewInt("total_processing_time_us")
+	totalResponsesSentByStatus := expvar.NewMap("total_responses_sent_by_status")
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		totalRequestsReceived.Add(1)
+
+		metrics := httpsnoop.CaptureMetrics(next, w, r)
+
+		totalResponsesSent.Add(1)
+
+		totalProcessingTimeMicroseconds.Add(metrics.Duration.Microseconds())
+
+		totalResponsesSentByStatus.Add(strconv.Itoa(metrics.Code), 1)
+	})
+}
+
+// File: ./Backend/llm/llm_service.go
+
+package llm
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/sashabaranov/go-openai"
+)
+
+type Service interface {
+	GetQuestion(ctx context.Context, lastQuestion string, lastAnswer string, conversationSummary string, skills []string, previousQuestions []string) (string, error)
+	UpdateSummary(ctx context.Context, lastQuestion string, lastAnswer string, conversationSummary string) (string, error)
+	UpdateSkills(ctx context.Context, lastQuestion string, lastAnswer string, skills []string) ([]string, error)
+	GetEmbeddings(ctx context.Context, str string) ([]float32, error)
+}
+
+type OpenAIService struct {
+	client *openai.Client
+}
+
+func NewOpenAIService(llmApiKey string) *OpenAIService {
+	return &OpenAIService{
+		client: openai.NewClient(llmApiKey),
+	}
+}
+
+var (
+	ErrLlmCall = errors.New("llm api call failed")
+)
+
+func (ai *OpenAIService) GetQuestion(ctx context.Context, lastQuestion string, lastAnswer string, conversationSummary string, skills []string, previousQuestions []string) (string, error) {
+
+	userMessage, err := questionPlaceholder.fill(lastQuestion, lastAnswer, strings.Join(skills, ", "), conversationSummary, strings.Join(previousQuestions, ", "))
+	if err != nil {
+		return "", fmt.Errorf("LLM Service: Get Question %w", err)
+	}
+
+	ctxTimeout, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	fmt.Println(userMessage)
+
+	resp, err := ai.client.CreateChatCompletion(
+		ctxTimeout,
+		openai.ChatCompletionRequest{
+			Model: openai.GPT4oMini,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleSystem,
+					Content: questionPrompt,
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: userMessage,
+				},
+			},
+		},
+	)
+	if err != nil {
+		return "", fmt.Errorf("LLM Service: Get Question %w: %w", ErrLlmCall, err)
+	}
+
+	return strings.TrimPrefix(strings.TrimSpace(resp.Choices[0].Message.Content), "NEXT_QUESTION: "), nil
+}
+
+func (ai *OpenAIService) UpdateSummary(ctx context.Context, lastQuestion string, lastAnswer string, conversationSummary string) (string, error) {
+
+	userMessage, err := summaryPlaceholder.fill(lastQuestion, lastAnswer, conversationSummary)
+	if err != nil {
+		return "", fmt.Errorf("LLM Service: Get Question %w", err)
+	}
+
+	ctxTimeout, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	resp, err := ai.client.CreateChatCompletion(
+		ctxTimeout,
+		openai.ChatCompletionRequest{
+			Model: openai.GPT4oMini,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleSystem,
+					Content: summaryPrompt,
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: userMessage,
+				},
+			},
+		},
+	)
+	if err != nil {
+		return "", fmt.Errorf("LLM Service: Get Question %w: %w", ErrLlmCall, err)
+	}
+
+	return strings.Split(resp.Choices[0].Message.Content, ": ")[1], nil
+}
+
+func (ai *OpenAIService) UpdateSkills(ctx context.Context, lastQuestion string, lastAnswer string, skills []string) ([]string, error) {
+
+	userMessage, err := skillsPlaceholder.fill(lastQuestion, lastAnswer, strings.Join(skills, ", "))
+	if err != nil {
+		return []string{}, fmt.Errorf("LLM Service: Get Question %w", err)
+	}
+
+	ctxTimeout, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	resp, err := ai.client.CreateChatCompletion(
+		ctxTimeout,
+		openai.ChatCompletionRequest{
+			Model: openai.GPT4oMini,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleSystem,
+					Content: skillsPrompt,
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: userMessage,
+				},
+			},
+		},
+	)
+	if err != nil {
+		return []string{}, fmt.Errorf("LLM Service: Get Question %w: %w", ErrLlmCall, err)
+	}
+
+	skillsStr := strings.TrimPrefix(resp.Choices[0].Message.Content, "UPDATED_SKILLS: ")
+	newSkills := strings.Split(skillsStr, ", ")
+
+	return newSkills, nil
+}
+
+func (ai *OpenAIService) GetEmbeddings(ctx context.Context, str string) ([]float32, error) {
+	queryReq := openai.EmbeddingRequest{
+		Input: []string{str},
+		Model: openai.LargeEmbedding3,
+	}
+
+	queryResponse, err := ai.client.CreateEmbeddings(ctx, queryReq)
+	if err != nil {
+		return []float32{}, fmt.Errorf("LLM Service: Get Question %w: %w", ErrLlmCall, err)
+	}
+
+	return queryResponse.Data[0].Embedding, nil
+}
+
+// File: ./Backend/llm/prompts.go
+
+package llm
+
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
+
+type userMessage string
+
+var (
+	ErrInvalidArgs = errors.New("invalid arg amount on prompt")
+)
+
+func (p userMessage) toString() string {
+	return string(p)
+}
+
+func (p userMessage) fill(args ...string) (string, error) {
+
+	placeholderCount := strings.Count(p.toString(), "%s")
+
+	if len(args) != placeholderCount {
+		return "", fmt.Errorf("%w: has %d; expected: %d", ErrInvalidArgs, len(args), placeholderCount)
+	}
+
+	interfaceArgs := make([]interface{}, len(args))
+	for i, v := range args {
+		interfaceArgs[i] = v
+	}
+
+	return fmt.Sprintf(p.toString(), interfaceArgs...), nil
+}
+
+const (
+	questionPrompt string = `
+Eres un asistente especializado en orientación profesional. Tu tarea es guiar al usuario a través de una conversación para identificar intereses, habilidades y posibles caminos profesionales. Sigue estas pautas:
+
+1. Comienza con un saludo inicial y menciona que la conversación constará de 10 preguntas. Evita repetir esta información en las siguientes preguntas.
+2. Si el usuario no muestra interés en profundizar en un tema, introduce un nuevo tema o cambia la dirección de la conversación.
+3. A medida que la conversación avanza, asegúrate de que cada pregunta se base en las respuestas anteriores del usuario, evitando repetir información o introducciones.
+4. Mantén la conversación fluida y lógica, evitando saltos abruptos o desconexiones entre las preguntas.
+5. Si el usuario se muestra indeciso o poco claro, introduce preguntas que exploren nuevas áreas de interés o perspectivas diferentes. Si el usuario no tiene una idea clara, ofrece ejemplos o sugerencias para facilitar la respuesta.
+
+Estructura de entrada:
+PREVIOUS_QUESTION: [Última pregunta realizada por la IA]
+USER_ANSWER: [Última respuesta del usuario]
+CONVERSATION_SUMMARY: [Breve resumen de los puntos clave discutidos hasta ahora]
+
+Estructura de salida:
+NEXT_QUESTION: [Nueva pregunta basada en la información proporcionada y las pautas dadas. Incluye la información de que son 15 preguntas en el primer mensaje.]`
+
+	summaryPrompt string = `Eres un asistente encargado de mantener un resumen actualizado de la conversación para ayudar en la toma de decisiones sobre recomendaciones de carrera. Te proporcionaré la siguiente información estructurada:
+
+Última pregunta: La última pregunta generada por la IA.
+Última respuesta: La última respuesta dada por el usuario.
+Resumen de la conversación previo: El resumen de la conversación hasta el momento.
+Con esta información, debes actualizar el resumen de la conversación, integrando la nueva pregunta y respuesta. El resumen debe ser conciso, relevante, y debe reflejar de manera clara cualquier nueva habilidad, preferencia, o información importante que haya surgido en esta última interacción."
+
+Estructura de entrada:
+
+AI_QUESTION: [Aquí se colocará la última pregunta generada por la IA]
+USER_ANSWER: [Aquí se colocará la última respuesta del usuario]
+CONVERSATION_SUMMARY: [Aquí se colocará el resumen previo de la conversación]
+
+Estructura de salida:
+
+UPDATED_CONVERSATION_SUMMARY: [Aquí deberás generar el resumen actualizado de la conversación]
+`
+
+	skillsPrompt string = `Eres un asistente experto en identificar habilidades, preferencias, y otras características clave para ayudar en la recomendación de carreras. Te proporcionaré la siguiente información estructurada:
+
+Última pregunta: La última pregunta generada por la IA.
+Última respuesta: La respuesta más reciente del usuario.
+Habilidades actuales: Una lista de las habilidades, preferencias, y otras características clave identificadas hasta el momento.
+Con esta información, debes analizar la respuesta del usuario y extraer cualquier nueva habilidad, preferencia o característica relevante que pueda ayudar en la recomendación de carrera. Luego, debes combinar estas nuevas habilidades con las existentes y devolver una lista completa y actualizada de todas las habilidades y preferencias identificadas, separadas por comas. La lista debe estar compuesta por palabras clave o frases cortas que resuman cada habilidad o preferencia."
+
+Estructura de entrada:
+
+AI_QUESTION: [Aquí se colocará la última pregunta generada por la IA]
+USER_ANSWER: [Aquí se colocará la última respuesta del usuario]
+CURRENT_SKILLS: [Aquí se colocará la lista actual de habilidades, preferencias y características]
+
+Estructura de salida:
+
+UPDATED_SKILLS: [Aquí deberás generar la lista completa y actualizada de habilidades, preferencias y características, separadas por comas]
+	`
+)
+
+const (
+	questionPlaceholder userMessage = `
+		AI_QUESTION: %s 
+		USER_ANSWER: %s 
+		SKILLS: %s 
+		CONVERSATION_SUMMARY: %s 
+		PREVIOUS_QUESTIONS: %s 
+	`
+
+	summaryPlaceholder userMessage = `
+		AI_QUESTION: %s 
+		USER_ANSWER: %s 
+		CONVERSATION_SUMMARY: %s 
+	`
+
+	skillsPlaceholder userMessage = `
+		AI_QUESTION: %s 
+		USER_ANSWER: %s 
+		CURRENT_SKILLS: %s 
+
+	`
+)
+
+// File: ./Backend/validator/tokens.go
+
+package validator
+
+func ValidateTokenPlaintext(v *Validator, tokenPlaintext string) {
+	v.Check(tokenPlaintext != "", "token", "must be provided")
+	v.Check(len(tokenPlaintext) == 26, "token", "must be 26 bytes long")
+}
+
+// File: ./Backend/validator/validator.go
+
+package validator
+
+import "regexp"
+
+var (
+	EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+)
+
+type Validator struct {
+	Errors map[string]string
+}
+
+func New() *Validator {
+	return &Validator{Errors: make(map[string]string)}
+}
+
+func (v *Validator) Valid() bool {
+	return len(v.Errors) == 0
+}
+
+func (v *Validator) AddError(key, message string) {
+	if _, exists := v.Errors[key]; !exists {
+		v.Errors[key] = message
+	}
+}
+
+func (v *Validator) Check(ok bool, key, message string) {
+	if !ok {
+		v.AddError(key, message)
+	}
+}
+
+func PermittedValue[T comparable](value T, permittedValues ...T) bool {
+	for i := range permittedValues {
+		if value == permittedValues[i] {
+			return true
+		}
+	}
+	return false
+}
+
+func Matches(value string, rx *regexp.Regexp) bool {
+	return rx.MatchString(value)
+}
+
+func Unique[T comparable](values []T) bool {
+	uniqueValues := make(map[T]bool)
+
+	for _, value := range values {
+		uniqueValues[value] = true
+	}
+
+	return len(values) == len(uniqueValues)
+}
+
+// File: ./Backend/careers/career_model.go
+
+package careers
+
+import (
+	"github.com/pgvector/pgvector-go"
+)
+
+type Career struct {
+	ID                     int64                `db:"id" json:"id"`
+	Title                  string               `db:"title" json:"title"`
+	Description            string               `db:"description" json:"description"`
+	PersonalityDescription string               `db:"personality_description" json:"personalityDescription"`
+	Education              string               `db:"education" json:"education"`
+	AverageSalary          string               `db:"average_salary" json:"averageSalary"`
+	LowerSalary            string               `db:"lower_salary" json:"lowerSalary"`
+	HighestSalary          string               `db:"highest_salary" json:"highestSalary"`
+	Embedding              pgvector.Vector      `db:"embedding" json:"embedding"`
+	TasksString            []string             `db:"-" json:"tasks"`
+	Tasks                  []Task               `db:"-" json:"careerTasks"`
+	Knowledge              []KnowledgeCategory  `db:"-" json:"knowledge"`
+	Abilities              []AbilityCategory    `db:"-" json:"abilities"`
+	SkillCategories        []SkillCategory      `db:"-" json:"skills"`
+	TecnologyCategories    []TechnologyCategory `db:"-" json:"technology"`
+	Personality            Personality          `db:"-" json:"personality"`
+}
+
+type Task struct {
+	ID              int64  `db:"id" json:"id"`
+	CareerID        int64  `db:"career_id" json:"careerId"`
+	TaskDescription string `db:"task_description" json:"taskDescription"`
+}
+
+type KnowledgeCategory struct {
+	ID       int64    `db:"id" json:"id"`
+	CareerID int64    `db:"career_id" json:"careerId"`
+	Name     string   `db:"category_name" json:"name"`
+	Areas    []string `db:"-" json:"areas"` // Now a slice of strings
+}
+
+type KnowledgeArea struct {
+	ID         int64  `db:"id" json:"id"`
+	CategoryID int64  `db:"category_id" json:"categoryId"`
+	AreaName   string `db:"area_name" json:"areaName"`
+}
+
+type AbilityCategory struct {
+	ID       int64    `db:"id" json:"id"`
+	CareerID int64    `db:"career_id" json:"careerId"`
+	Name     string   `db:"category_name" json:"name"`
+	Areas    []string `db:"-" json:"areas"` // Now a slice of strings
+}
+
+type AbilityArea struct {
+	ID         int64  `db:"id" json:"id"`
+	CategoryID int64  `db:"category_id" json:"categoryId"`
+	AreaName   string `db:"area_name" json:"areaName"`
+}
+
+type SkillCategory struct {
+	ID       int64    `db:"id" json:"id"`
+	CareerID int64    `db:"career_id" json:"careerId"`
+	Name     string   `db:"category_name" json:"name"`
+	Areas    []string `db:"-" json:"areas"` // Now a slice of strings
+}
+
+type SkillArea struct {
+	ID         int64  `db:"id" json:"id"`
+	CategoryID int64  `db:"category_id" json:"categoryId"`
+	AreaName   string `db:"area_name" json:"areaName"`
+}
+
+type TechnologyCategory struct {
+	ID       int64    `db:"id" json:"id"`
+	CareerID int64    `db:"career_id" json:"careerId"`
+	Name     string   `db:"category_name" json:"name"`
+	Areas    []string `db:"-" json:"areas"` // Now a slice of strings
+}
+
+type TechnologyArea struct {
+	ID         int64  `db:"id" json:"id"`
+	CategoryID int64  `db:"category_id" json:"categoryId"`
+	AreaName   string `db:"area_name" json:"areaName"`
+}
+
+type Personality struct {
+	Description string   `db:"-" json:"description"`
+	Attributes  []string `db:"-" json:"attributes"`
+}
+
+type PersonalityAttribute struct {
+	ID            int64  `db:"id" json:"id"`
+	CareerID      int64  `db:"career_id" json:"careerId"`
+	AttributeName string `db:"attribute_name" json:"attributeName"`
+}
+
+// File: ./Backend/careers/career_service.go
+
+package careers
+
+import (
+	"github.com/jmoiron/sqlx"
+	"golang.org/x/net/context"
+)
+
+type Service interface {
+	GetSimilarity(ctx context.Context, embedding []float32) ([]Career, error)
+}
+
+type CareerService struct {
+	store store
+}
+
+func NewCareerService(db *sqlx.DB) *CareerService {
+	s := newCareerStore(db)
+
+	return &CareerService{
+		store: &s,
+	}
+}
+
+func (cs *CareerService) GetSimilarity(ctx context.Context, embedding []float32) ([]Career, error) {
+	return cs.store.GetSuggestions(ctx, embedding)
+}
+
+// File: ./Backend/careers/career_store.go
+
+package careers
+
+import (
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/pgvector/pgvector-go"
+	"golang.org/x/net/context"
+)
+
+type store interface {
+	GetSuggestions(ctx context.Context, embedding []float32) ([]Career, error)
+}
+
+type careerStore struct {
+	db *sqlx.DB
+}
+
+func newCareerStore(db *sqlx.DB) careerStore {
+	return careerStore{
+		db: db,
+	}
+}
+
+var (
+	ErrGettingSuggestions = errors.New("error executing suggestions query")
+)
+
+func (cs *careerStore) GetSuggestions(ctx context.Context, embedding []float32) ([]Career, error) {
+	// Query to get the basic career information
+	query := `SELECT
+		id, title, description, personality_description, education, average_salary,
+		lower_salary, highest_salary
+		FROM careers
+		ORDER BY embedding <=> $1 LIMIT 5`
+
+	careers := make([]Career, 0)
+
+	ctxTimeout, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	err := cs.db.SelectContext(ctxTimeout, &careers, query, pgvector.NewVector(embedding))
+	if err != nil {
+		return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+	}
+
+	// Fetch related data for each career
+	for i := range careers {
+		// Fetch tasks
+		tasksQuery := `SELECT id, career_id, task_description FROM tasks WHERE career_id = $1`
+		err = cs.db.SelectContext(ctxTimeout, &careers[i].Tasks, tasksQuery, careers[i].ID)
+		if err != nil {
+			return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+		}
+
+		// Fetch knowledge categories and areas
+		knowledgeCategoriesQuery := `SELECT id, career_id, category_name FROM knowledge_categories WHERE career_id = $1`
+		err = cs.db.SelectContext(ctxTimeout, &careers[i].Knowledge, knowledgeCategoriesQuery, careers[i].ID)
+		if err != nil {
+			return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+		}
+		for j := range careers[i].Knowledge {
+			knowledgeAreasQuery := `SELECT area_name FROM knowledge_areas WHERE category_id = $1`
+			err = cs.db.SelectContext(ctxTimeout, &careers[i].Knowledge[j].Areas, knowledgeAreasQuery, careers[i].Knowledge[j].ID)
+			if err != nil {
+				return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+			}
+		}
+
+		// Fetch ability categories and areas
+		abilityCategoriesQuery := `SELECT id, career_id, category_name FROM ability_categories WHERE career_id = $1`
+		err = cs.db.SelectContext(ctxTimeout, &careers[i].Abilities, abilityCategoriesQuery, careers[i].ID)
+		if err != nil {
+			return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+		}
+		for j := range careers[i].Abilities {
+			abilityAreasQuery := `SELECT area_name FROM ability_areas WHERE category_id = $1`
+			err = cs.db.SelectContext(ctxTimeout, &careers[i].Abilities[j].Areas, abilityAreasQuery, careers[i].Abilities[j].ID)
+			if err != nil {
+				return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+			}
+
+			fmt.Println(careers[i].Abilities)
+		}
+
+		// Fetch skill categories and areas
+		skillCategoriesQuery := `SELECT id, career_id, category_name FROM skill_categories WHERE career_id = $1`
+		err = cs.db.SelectContext(ctxTimeout, &careers[i].SkillCategories, skillCategoriesQuery, careers[i].ID)
+		if err != nil {
+			return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+		}
+		for j := range careers[i].SkillCategories {
+			skillAreasQuery := `SELECT area_name FROM skill_areas WHERE category_id = $1`
+			err = cs.db.SelectContext(ctxTimeout, &careers[i].SkillCategories[j].Areas, skillAreasQuery, careers[i].SkillCategories[j].ID)
+			if err != nil {
+				return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+			}
+		}
+
+		// Fetch technology categories and areas
+		technologyCategoriesQuery := `SELECT id, career_id, category_name FROM technology_categories WHERE career_id = $1`
+		err = cs.db.SelectContext(ctxTimeout, &careers[i].TecnologyCategories, technologyCategoriesQuery, careers[i].ID)
+		if err != nil {
+			return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+		}
+		for j := range careers[i].TecnologyCategories {
+			technologyAreasQuery := `SELECT area_name FROM technology_areas WHERE category_id = $1`
+			err = cs.db.SelectContext(ctxTimeout, &careers[i].TecnologyCategories[j].Areas, technologyAreasQuery, careers[i].TecnologyCategories[j].ID)
+			if err != nil {
+				return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+			}
+		}
+
+		// Fetch personality attributes
+		personalityAttributesQuery := `SELECT attribute_name FROM personality_attributes WHERE career_id = $1`
+		err = cs.db.SelectContext(ctxTimeout, &careers[i].Personality.Attributes, personalityAttributesQuery, careers[i].ID)
+		if err != nil {
+			return []Career{}, fmt.Errorf("%w: %w", ErrGettingSuggestions, err)
+		}
+	}
+
+	return careers, nil
+}
+
+// File: ./Backend/careertest/careertest_model.go
+
+package careertest
+
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+)
+
+type CareerTest struct {
+	ID                  string       `db:"id" json:"id"`
+	UserId              int64        `db:"user_id" json:"userId"`
+	FullConversation    Conversation `db:"full_conversation" json:"fullConversation"`
+	ConversationSummary string       `db:"conversation_summary" json:"conversationSummary"`
+	Status              string       `db:"status" json:"status"`
+	Skills              []string     `db:"skills" json:"skills"`
+	LastQuestion        string       `db:"last_question" json:"lastQuestion"`
+	LastAnswer          string       `db:"last_answer" json:"lastAnswer"`
+	AIQuestions         []string     `db:"ai_questions" json:"-"`
+	Version             int          `db:"version" json:"version"`
+}
+
+type Conversation []Message
+
+type Message struct {
+	Sender  Sender `db:"sender" json:"sender"`
+	Content string `db:"content" json:"content"`
+}
+
+type Sender string
+
+const (
+	SenderIA   Sender = "IA"
+	SenderUser Sender = "User"
+)
+
+func (c Conversation) Value() (driver.Value, error) {
+	return json.Marshal(c)
+}
+
+func (c *Conversation) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(b, &c)
+}
+
+func (m Message) Value() (driver.Value, error) {
+	return json.Marshal(m)
+}
+
+func (m *Message) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(b, &m)
+}
+
+// File: ./Backend/careertest/careertest_service.go
+
+package careertest
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/colmedev/IA-KuroJam/Backend/llm"
+	"github.com/jmoiron/sqlx"
+)
+
+type Service interface {
+	StartTest(ctx context.Context, ct *CareerTest) error
+	GetQuestion(ctx context.Context, careerTestId int64, userId int64) (*Message, error)
+	PostAnswer(ctx context.Context, lastAnswer string, careerTestId int64, userId int64) (*Message, error)
+	GetResultsEmbedding(ctx context.Context, userId int64) ([]float32, error)
+	GetActiveTest(ctx context.Context, userId int64) (*CareerTest, error)
+}
+
+type CareerTestService struct {
+	store      store
+	llmService llm.Service
+}
+
+var (
+	ErrValidation    = errors.New("missing fields")
+	ErrNotPermission = errors.New("no permission to edit")
+)
+
+func NewService(db *sqlx.DB, llmService llm.Service) *CareerTestService {
+	cts := newCareerTestStore(db)
+
+	return &CareerTestService{
+		store:      &cts,
+		llmService: llmService,
+	}
+}
+
+func (cts *CareerTestService) StartTest(ctx context.Context, ct *CareerTest) error {
+
+	if ct.UserId == 0 {
+		return fmt.Errorf("career test service: %w: missing user id", ErrValidation)
+	}
+
+	return cts.store.Insert(ctx, ct)
+}
+
+func (cts *CareerTestService) PostAnswer(ctx context.Context, lastAnswer string, careerTestId int64, userId int64) (*Message, error) {
+
+	careerTest, err := cts.store.Get(ctx, careerTestId)
+	if err != nil {
+		return nil, fmt.Errorf("CareerTestService PostAnswer: %w", err)
+	}
+
+	if careerTest.UserId != userId {
+		return nil, fmt.Errorf("CareerTestService PostAnswer: %w", ErrNotPermission)
+	}
+
+	if careerTest.Status == "Completed" {
+		return &Message{
+			Sender:  SenderIA,
+			Content: "Ha terminado la entrevista. Puedes proceder a ver los resultados",
+		}, nil
+	}
+
+	// Update last answer
+	careerTest.LastAnswer = lastAnswer
+
+	// Generate summary
+	summary, err := cts.llmService.UpdateSummary(ctx, careerTest.LastQuestion, careerTest.LastAnswer, careerTest.ConversationSummary)
+	if err != nil {
+		return nil, fmt.Errorf("CareerTestService PostAnswer: %w", err)
+	}
+
+	careerTest.ConversationSummary = summary
+
+	// Generate new skills list
+	skills, err := cts.llmService.UpdateSkills(ctx, careerTest.LastQuestion, lastAnswer, careerTest.Skills)
+	if err != nil {
+		return nil, fmt.Errorf("CareerTestService PostAnswer: %w", err)
+	}
+
+	careerTest.Skills = skills
+
+	// Return new question
+	newQuestion, err := cts.llmService.GetQuestion(ctx, careerTest.LastQuestion, careerTest.LastAnswer, careerTest.ConversationSummary, careerTest.Skills, careerTest.AIQuestions)
+	if err != nil {
+		return nil, fmt.Errorf("CareerTestService PostAnswer: %w", err)
+	}
+
+	careerTest.LastQuestion = newQuestion
+
+	// Add messages to full conversation
+	usrMsg := &Message{
+		Sender:  SenderUser,
+		Content: lastAnswer,
+	}
+
+	iaMsg := &Message{
+		Sender:  SenderIA,
+		Content: newQuestion,
+	}
+
+	careerTest.FullConversation = append(careerTest.FullConversation, *usrMsg)
+	careerTest.FullConversation = append(careerTest.FullConversation, *iaMsg)
+	careerTest.AIQuestions = append(careerTest.AIQuestions, newQuestion)
+
+	if len(careerTest.AIQuestions) >= 10 {
+		careerTest.Status = "Completed"
+	} else {
+		careerTest.Status = "In Process"
+	}
+
+	err = cts.store.Update(ctx, careerTest)
+	if err != nil {
+		return nil, fmt.Errorf("CareerTestService PostAnswer: %w", err)
+	}
+
+	return iaMsg, nil
+}
+
+func (cts *CareerTestService) GetQuestion(ctx context.Context, careerTestId int64, userId int64) (*Message, error) {
+	careerTest, err := cts.store.Get(ctx, careerTestId)
+	if err != nil {
+		return nil, fmt.Errorf("CareerTestService GetQuestion: %w", err)
+	}
+
+	if careerTest.UserId != userId {
+		return nil, fmt.Errorf("CareerTestService GetQuestion: %w", ErrNotPermission)
+	}
+
+	// Return new question
+	newQuestion, err := cts.llmService.GetQuestion(ctx, careerTest.LastQuestion, careerTest.LastAnswer, careerTest.ConversationSummary, careerTest.Skills, careerTest.AIQuestions)
+	if err != nil {
+		return nil, fmt.Errorf("CareerTestService GetQuestion: %w", err)
+	}
+
+	careerTest.LastQuestion = newQuestion
+
+	iaMsg := &Message{
+		Sender:  SenderIA,
+		Content: newQuestion,
+	}
+
+	careerTest.FullConversation = append(careerTest.FullConversation, *iaMsg)
+
+	err = cts.store.Update(ctx, careerTest)
+	if err != nil {
+		return nil, fmt.Errorf("CareerTestService GetQuestion: %w", err)
+	}
+
+	return iaMsg, nil
+}
+
+func (cts *CareerTestService) GetResultsEmbedding(ctx context.Context, userId int64) ([]float32, error) {
+	careerTest, err := cts.store.GetLastCompleted(ctx, userId)
+	if err != nil {
+		return []float32{}, fmt.Errorf("CareerTestService GetResultsString: %w", err)
+	}
+
+	if careerTest.UserId != userId {
+		return []float32{}, fmt.Errorf("CareerTestService GetResultsString: %w", ErrNotPermission)
+	}
+
+	str := fmt.Sprintf(
+		"%s\n%s\n",
+		careerTest.ConversationSummary,
+		careerTest.Skills,
+	)
+
+	emb, err := cts.llmService.GetEmbeddings(ctx, str)
+	if err != nil {
+		return []float32{}, fmt.Errorf("CareerTestService GetresultsString: %w", err)
+	}
+
+	return emb, nil
+}
+
+func (cts *CareerTestService) GetActiveTest(ctx context.Context, userId int64) (*CareerTest, error) {
+	careerTest, err := cts.store.GetActive(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("CareerTestService GetActiveTest: %w", err)
+	}
+
+	return careerTest, err
+}
+
+// File: ./Backend/careertest/careertest_store.go
+
+package careertest
+
+import (
+	"context"
+	"database/sql"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
+)
+
+// TODO: Implemenbt service
+
+type store interface {
+	Insert(ctx context.Context, ct *CareerTest) error
+	Update(ctx context.Context, ct *CareerTest) error
+	Get(ctx context.Context, careerTestId int64) (*CareerTest, error)
+	GetActive(ctx context.Context, userId int64) (*CareerTest, error)
+	GetLastCompleted(ctx context.Context, userId int64) (*CareerTest, error)
+}
+
+type careerTestStore struct {
+	db *sqlx.DB
+}
+
+func newCareerTestStore(db *sqlx.DB) careerTestStore {
+	return careerTestStore{
+		db: db,
+	}
+}
+
+// Errors
+var (
+	ErrEncoding       = errors.New("data encoding error")
+	ErrEditConflict   = errors.New("conflict error")
+	ErrRecordNotFound = errors.New("career test not found")
+)
+
+func (cts *careerTestStore) Insert(ctx context.Context, ct *CareerTest) error {
+	query := `INSERT INTO career_tests (user_id)
+		VALUES ($1)
+		RETURNING id
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	err := cts.db.QueryRowxContext(ctx, query, ct.UserId).Scan(&ct.ID)
+	if err != nil {
+		return fmt.Errorf("error inserting career test: %w", err)
+	}
+
+	return nil
+}
+
+func (cts *careerTestStore) Update(ctx context.Context, ct *CareerTest) error {
+	query := `UPDATE career_tests SET
+		full_conversation = $1,
+		conversation_summary = $2, 
+		status = $3,
+		skills = $4,
+		last_question = $5,	
+		last_answer = $6,
+		ai_questions = $7
+		WHERE id = $8
+		RETURNING version
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	fcData, err := json.Marshal(ct.FullConversation)
+	if err != nil {
+		return fmt.Errorf("error inserting career test: %w", err)
+	}
+
+	err = cts.db.QueryRowxContext(
+		ctx,
+		query,
+		fcData,
+		ct.ConversationSummary,
+		ct.Status,
+		pq.Array(ct.Skills),
+		ct.LastQuestion,
+		ct.LastAnswer,
+		pq.Array(ct.AIQuestions),
+		ct.ID,
+	).Scan(&ct.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return fmt.Errorf("error updating career test: %w", ErrEditConflict)
+		default:
+			return fmt.Errorf("error updating career test: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func (cts *careerTestStore) Get(ctx context.Context, careerTestId int64) (*CareerTest, error) {
+	query := `SELECT id, user_id, full_conversation, conversation_summary, 
+		status, skills,  version, last_question, last_answer, ai_questions
+		FROM career_tests WHERE id = $1
+		`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	var careerTest CareerTest
+	var fullConversation []byte
+	var conversationSummary sql.NullString
+	var lastQuestion sql.NullString
+	var lastAnswer sql.NullString
+
+	err := cts.db.QueryRowxContext(ctx, query, careerTestId).Scan(
+		&careerTest.ID,
+		&careerTest.UserId,
+		&fullConversation,
+		&conversationSummary,
+		&careerTest.Status,
+		pq.Array(&careerTest.Skills),
+		&careerTest.Version,
+		&lastQuestion,
+		&lastAnswer,
+		pq.Array(&careerTest.AIQuestions),
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, fmt.Errorf("%w (id %v)", ErrRecordNotFound, careerTestId)
+		default:
+			return nil, fmt.Errorf("error fetching career test (id: %v): %w", careerTestId, err)
+		}
+	}
+
+	if len(fullConversation) > 0 {
+		if err := json.Unmarshal(fullConversation, &careerTest.FullConversation); err != nil {
+			return nil, fmt.Errorf("error unmarshaling full_conversation for career test (id: %v): %w", careerTestId, err)
+		}
+	}
+
+	if conversationSummary.Valid {
+		careerTest.ConversationSummary = conversationSummary.String
+	}
+
+	if lastQuestion.Valid {
+		careerTest.LastQuestion = lastQuestion.String
+	}
+
+	if lastAnswer.Valid {
+		careerTest.LastAnswer = lastAnswer.String
+	}
+
+	return &careerTest, nil
+}
+
+func (cts *careerTestStore) GetActive(ctx context.Context, userId int64) (*CareerTest, error) {
+	query := `SELECT id, user_id, full_conversation, conversation_summary, 
+		status, skills,  version, last_question, last_answer, ai_questions
+		FROM career_tests
+		WHERE status != 'Completed'
+		AND user_id = $1
+		ORDER BY id DESC
+		LIMIT 1
+		`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	var careerTest CareerTest
+	var fullConversation []byte
+	var conversationSummary sql.NullString
+	var lastQuestion sql.NullString
+	var lastAnswer sql.NullString
+
+	err := cts.db.QueryRowxContext(ctx, query, userId).Scan(
+		&careerTest.ID,
+		&careerTest.UserId,
+		&fullConversation,
+		&conversationSummary,
+		&careerTest.Status,
+		pq.Array(&careerTest.Skills),
+		&careerTest.Version,
+		&lastQuestion,
+		&lastAnswer,
+		pq.Array(&careerTest.AIQuestions),
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, fmt.Errorf("%w (not active career test found)", ErrRecordNotFound)
+		default:
+			return nil, fmt.Errorf("error fetching career test: %w", err)
+		}
+	}
+
+	if len(fullConversation) > 0 {
+		if err := json.Unmarshal(fullConversation, &careerTest.FullConversation); err != nil {
+			return nil, fmt.Errorf("error unmarshaling full_conversation for career test (id: %v): %w", careerTest.ID, err)
+		}
+	}
+
+	if conversationSummary.Valid {
+		careerTest.ConversationSummary = conversationSummary.String
+	}
+
+	if lastQuestion.Valid {
+		careerTest.LastQuestion = lastQuestion.String
+	}
+
+	if lastAnswer.Valid {
+		careerTest.LastAnswer = lastAnswer.String
+	}
+
+	return &careerTest, nil
+}
+
+func (cts *careerTestStore) GetLastCompleted(ctx context.Context, userId int64) (*CareerTest, error) {
+	query := `SELECT id, user_id, full_conversation, conversation_summary, 
+		status, skills,  version, last_question, last_answer, ai_questions
+		FROM career_tests
+		WHERE status = 'Completed'
+		AND user_id = $1
+		ORDER BY id DESC
+		LIMIT 1
+		`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	var careerTest CareerTest
+	var fullConversation []byte
+	var conversationSummary sql.NullString
+	var lastQuestion sql.NullString
+	var lastAnswer sql.NullString
+
+	err := cts.db.QueryRowxContext(ctx, query, userId).Scan(
+		&careerTest.ID,
+		&careerTest.UserId,
+		&fullConversation,
+		&conversationSummary,
+		&careerTest.Status,
+		pq.Array(&careerTest.Skills),
+		&careerTest.Version,
+		&lastQuestion,
+		&lastAnswer,
+		pq.Array(&careerTest.AIQuestions),
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, fmt.Errorf("%w (not active career test found)", ErrRecordNotFound)
+		default:
+			return nil, fmt.Errorf("error fetching career test: %w", err)
+		}
+	}
+
+	if len(fullConversation) > 0 {
+		if err := json.Unmarshal(fullConversation, &careerTest.FullConversation); err != nil {
+			return nil, fmt.Errorf("error unmarshaling full_conversation for career test (id: %v): %w", careerTest.ID, err)
+		}
+	}
+
+	if conversationSummary.Valid {
+		careerTest.ConversationSummary = conversationSummary.String
+	}
+
+	if lastQuestion.Valid {
+		careerTest.LastQuestion = lastQuestion.String
+	}
+
+	if lastAnswer.Valid {
+		careerTest.LastAnswer = lastAnswer.String
+	}
+
+	return &careerTest, nil
+}
+
+// File: ./Backend/server/start.go
+
+package server
+
+import (
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+	"flag"
+	"fmt"
+	"log"
+	"log/slog"
+	"os"
+	"strings"
+
+	"github.com/colmedev/IA-KuroJam/Backend/api"
+	"github.com/colmedev/IA-KuroJam/Backend/careers"
+	"github.com/colmedev/IA-KuroJam/Backend/careertest"
+	"github.com/colmedev/IA-KuroJam/Backend/llm"
+	"github.com/colmedev/IA-KuroJam/Backend/users"
+)
+
+var (
+	version = "0.0.1"
+)
+
+func StartServer() error {
+	var config api.Config
+
+	flag.IntVar(&config.Port, "port", 8000, "API server port")
+	flag.StringVar(&config.Env, "env", "development", "Environment (development|staging|production)")
+
+	flag.StringVar(&config.DB.DSN, "db-dsn", "", "PostgreSQL DSN")
+	flag.IntVar(&config.DB.MaxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
+	flag.IntVar(&config.DB.MaxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
+	flag.StringVar(&config.DB.MaxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
+
+	flag.Float64Var(&config.Limiter.RPS, "limiter-rps", 2, "Rate limiter maximum requests per second")
+	flag.IntVar(&config.Limiter.Burst, "limiter-burst", 4, "Rate limiter maxumim burst")
+	flag.BoolVar(&config.Limiter.Enabled, "limiter-enabled", true, "Enable rate limiter")
+
+	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
+		config.Cors.TrustedOrigins = strings.Fields(val)
+		return nil
+	})
+
+	// flag.StringVar(&config.Auth.SigningKey, "signing-key", "abc123", "JWT Tokens Signing Key")
+	flag.IntVar(&config.Auth.TokenExpirationInMinutes, "token-expiration", 15, "Token Expiration in Minutes")
+
+	flag.StringVar(&config.LlmApiKey, "llm-api-key", "", "LLM API Key")
+
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+
+	flag.Parse()
+
+	// Load Key
+	//TODO: Change to flag path
+	publicKey, err := loadRSAPublicKeyFromFile("./public_key.pem")
+	if err != nil {
+		log.Fatal("Error loading public key:", err)
+	}
+
+	config.Auth.SigningKey = publicKey
+
+	if *displayVersion {
+		fmt.Printf("Version\t%s\n", version)
+	}
+
+	// Dependencies
+
+	opts := &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, opts))
+
+	logger.Info("Testing")
+
+	db, err := api.OpenDb(config)
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+
+	logger.Info("database connection pool established")
+
+	// Services
+	usersService, err := users.NewService(db)
+	if err != nil {
+		return fmt.Errorf("error initializing user service: %w", err)
+	}
+
+	// TODO: Add services
+	llmService := llm.NewOpenAIService(config.LlmApiKey)
+	careerTestService := careertest.NewService(db, llmService)
+	careerService := careers.NewCareerService(db)
+
+	// Application
+	app := api.NewApplication(
+		config,
+		db,
+		logger,
+		api.WithUserService(usersService),
+		api.WithLlmService(llmService),
+		api.WithCareerTestService(careerTestService),
+		api.WithCareerService(careerService),
+	)
+
+	// Handlers
+
+	h := &Handlers{
+		app: app,
+	}
+
+	err = h.Serve()
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func loadRSAPublicKeyFromFile(filePath string) (*rsa.PublicKey, error) {
+	pemData, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read public key file: %v", err)
+	}
+
+	block, _ := pem.Decode(pemData)
+	if block == nil || block.Type != "PUBLIC KEY" {
+		return nil, fmt.Errorf("failed to decode PEM block containing public key")
+	}
+
+	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse public key: %v", err)
+	}
+
+	rsaPub, ok := pub.(*rsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("not an RSA public key")
+	}
+
+	return rsaPub, nil
+}
+
+// File: ./Backend/server/server.go
+
+package server
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
+
+func (h *Handlers) Serve() error {
+	srv := &http.Server{
+		Addr:         fmt.Sprintf(":%d", h.app.Config.Port),
+		Handler:      h.routes(),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
+
+	shutdownError := make(chan error)
+
+	go func() {
+		quit := make(chan os.Signal, 1)
+
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+		s := <-quit
+
+		h.app.Logger.Info("shutting down server", "signal", s.String())
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		err := srv.Shutdown(ctx)
+		if err != nil {
+			shutdownError <- err
+		}
+
+		h.app.Logger.Info("completing background tasks", "addr", srv.Addr)
+
+		h.app.Wg.Wait()
+
+		shutdownError <- nil
+	}()
+
+	h.app.Logger.Info(
+		"starting server",
+		"addr", srv.Addr,
+		"env", h.app.Config.Env,
+	)
+
+	err := srv.ListenAndServe()
+	if !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+
+	err = <-shutdownError
+	if err != nil {
+		return err
+	}
+
+	h.app.Logger.Info("stopped server", "addr", srv.Addr)
+
+	return nil
+}
+
+// File: ./Backend/server/careertest_handler.go
+
+package server
+
+import (
+	"errors"
+	"fmt"
+	"net/http"
+	"strconv"
+
+	"github.com/colmedev/IA-KuroJam/Backend/api"
+	"github.com/colmedev/IA-KuroJam/Backend/careertest"
+	"github.com/go-chi/chi/v5"
+)
+
+func (h *Handlers) startTest(w http.ResponseWriter, r *http.Request) {
+	user := h.app.ContextGetUser(r)
+
+	ct := &careertest.CareerTest{
+		UserId: user.Id,
+	}
+
+	err := h.app.Services.CareerTestService.StartTest(r.Context(), ct)
+	if err != nil {
+		h.app.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	data := api.Envelope{
+		"careerTest": ct,
+	}
+
+	err = h.app.WriteJSON(w, 201, data, nil)
+	if err != nil {
+		h.app.ServerErrorResponse(w, r, err)
+	}
+}
+
+func (h *Handlers) getQuestion(w http.ResponseWriter, r *http.Request) {
+	user := h.app.ContextGetUser(r)
+	careerTestIdStr := chi.URLParam(r, "id")
+
+	careerTestId, err := strconv.ParseInt(careerTestIdStr, 10, 64)
+	if err != nil {
+		h.app.BadRequestResponse(w, r, fmt.Errorf("invalid path value"))
+		return
+	}
+
+	msg, err := h.app.Services.CareerTestService.GetQuestion(r.Context(), careerTestId, user.Id)
+	if err != nil {
+		switch {
+		case errors.Is(err, careertest.ErrNotPermission):
+			h.app.NotPermittedResponse(w, r)
+			return
+		default:
+			h.app.ServerErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	data := api.Envelope{
+		"message": msg,
+	}
+
+	err = h.app.WriteJSON(w, 200, data, nil)
+	if err != nil {
+		h.app.ServerErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (h *Handlers) postAnswer(w http.ResponseWriter, r *http.Request) {
+	user := h.app.ContextGetUser(r)
+	careerTestIdStr := chi.URLParam(r, "id")
+
+	careerTestId, err := strconv.ParseInt(careerTestIdStr, 10, 64)
+	if err != nil {
+		h.app.BadRequestResponse(w, r, fmt.Errorf("invalid path value"))
+		return
+	}
+
+	var input struct {
+		Answer string `json:"answer"`
+	}
+
+	err = h.app.ReadJSON(w, r, &input)
+	if err != nil {
+		h.app.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if input.Answer == "" {
+		h.app.BadRequestResponse(w, r, fmt.Errorf("answer is empty"))
+		return
+	}
+
+	msg, err := h.app.Services.CareerTestService.PostAnswer(r.Context(), input.Answer, careerTestId, user.Id)
+	if err != nil {
+		switch {
+		case errors.Is(err, careertest.ErrRecordNotFound):
+			h.app.NotFoundResponse(w, r)
+			return
+		default:
+			h.app.ServerErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	data := api.Envelope{
+		"message": msg,
+	}
+
+	err = h.app.WriteJSON(w, 200, data, nil)
+	if err != nil {
+		h.app.ServerErrorResponse(w, r, err)
+	}
+}
+
+func (h *Handlers) getResults(w http.ResponseWriter, r *http.Request) {
+	user := h.app.ContextGetUser(r)
+
+	emb, err := h.app.Services.CareerTestService.GetResultsEmbedding(r.Context(), user.Id)
+	if err != nil {
+		h.app.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	fmt.Println(h.app.Services.CareerService)
+	careers, err := h.app.Services.CareerService.GetSimilarity(r.Context(), emb)
+	if err != nil {
+		h.app.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	data := api.Envelope{
+		"careers": careers,
+	}
+
+	err = h.app.WriteJSON(w, 200, data, nil)
+	if err != nil {
+		h.app.ServerErrorResponse(w, r, err)
+	}
+}
+
+func (h *Handlers) getActiveTest(w http.ResponseWriter, r *http.Request) {
+	user := h.app.ContextGetUser(r)
+
+	careerTest, err := h.app.Services.CareerTestService.GetActiveTest(r.Context(), user.Id)
+	if err != nil {
+		switch {
+		case errors.Is(err, careertest.ErrRecordNotFound):
+			h.app.NotFoundResponse(w, r)
+			return
+		default:
+			h.app.ServerErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	data := api.Envelope{
+		"careerTest": careerTest,
+	}
+
+	err = h.app.WriteJSON(w, 200, data, nil)
+	if err != nil {
+		h.app.ServerErrorResponse(w, r, err)
+	}
+
+}
+
+// File: ./Backend/server/user_handler.go
+
+package server
+
+import (
+	"net/http"
+)
+
+// TODO: implement authenticate method, take as an idea the google-oauth project example
+
+func (h *Handlers) authenticate(w http.ResponseWriter, r *http.Request) {
+}
+
+func (h *Handlers) register(w http.ResponseWriter, r *http.Request) {
+}
+
+// File: ./Backend/server/routes.go
+
+package server
+
+import (
+	"net/http"
+
+	"github.com/colmedev/IA-KuroJam/Backend/api"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
+)
+
+type Handlers struct {
+	app *api.Api
+}
+
+func (h *Handlers) routes() http.Handler {
+	router := chi.NewRouter()
+
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"http://localhost:5173"}, // Use this to allow specific origin hosts
+		// AllowedOrigins: []string{"https://*", "http://*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
+
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.Logger)
+	router.Use(h.app.Authenticate)
+	// TODO: Add Panic Recover, RateLimiter, CORS
+
+	router.Get("/v1/healthcheck", h.healthCheckHandler)
+	// router.Post("/v1/auth/login", h.authenticate)
+	// router.Post("/v1/auth/register", h.register)
+
+	router.Group(func(protected chi.Router) {
+
+		protected.Use(h.app.RequireAuthenticatedUser)
+
+		protected.Post("/v1/start-test", h.startTest)
+		protected.Get("/v1/questions/{id}", h.getQuestion)
+		protected.Post("/v1/answer/{id}", h.postAnswer)
+		protected.Get("/v1/results", h.getResults)
+		protected.Get("/v1/get-test", h.getActiveTest)
+	})
+
+	return router
+}
+
+func (h *Handlers) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	env := api.Envelope{
+		"status": "available",
+		"system_info": map[string]string{
+			"environment": "Testing",
+			"version":     "1.0.0",
+		},
+	}
+
+	err := h.app.WriteJSON(w, http.StatusOK, env, nil)
+	if err != nil {
+		h.app.ServerErrorResponse(w, r, err)
+	}
+}
+
+// File: ./Frontend/src/pages/Chat.tsx
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import './Chat.css';
+import Message from '../components/Message/Message';
+import { useAuth } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+const Chat: React.FC = () => {
+  const [messages, setMessages] = useState<{ content: string, sender: string }[]>([]);
+  const [eventId, setEventId] = useState<number | undefined>();
+  const [input, setInput] = useState('');
+  const { getToken } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  const sendMessage = async () => {
+    try {
+      const token = await getToken();
+
+      setInput('');
+
+      setMessages((prevMessages = []) => [
+        ...prevMessages,
+        { content: input, sender: "User" },
+        { content: "AI is typing...", sender: "AI" }
+      ]);
+      setIsLoading(true);
+
+      const response = await fetch(`${BACKEND_URL}/answer/${eventId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ answer: input }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error sending message to server');
+      }
+
+      const responseData = await response.json();
+
+      setMessages((prevMessages = []) => {
+        const updatedMessages = [...prevMessages];
+        updatedMessages.pop();  
+        return [...updatedMessages, responseData.message];
+      });
+
+      if (responseData.message.content === "Ha terminado la entrevista. Puedes proceder a ver los resultados") {
+        navigate('/results');
+      }
+
+    } catch (error) {
+      alert(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getFirstQuestion = useCallback(async () => {
+    try {
+      const token = await getToken();
+
+      if(eventId == null){
+        return;
+      }
+
+      const response = await fetch(`${BACKEND_URL}/questions/${eventId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Error getting the question');
+      }
+
+      const responseData = await response.json();
+
+      setMessages((prevMessages = []) => [...prevMessages, responseData.message]);
+
+    } catch (error) {
+      alert(error);
+    }
+  }, [getToken, eventId]);
+
+  const startEvent = useCallback(async () => {
+    try {
+      const token = await getToken();
+
+      const response = await fetch(`${BACKEND_URL}/start-test`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Error starting the career survey');
+      }
+
+      const responseData = await response.json();
+
+      setEventId(responseData.careerTest.id);
+
+      if (responseData.careerTest.fullConversation !== null) {
+        return;
+      }
+
+      console.log("getting question");
+      await getFirstQuestion();
+
+    } catch (error) {
+      alert(error);
+    }
+  }, [getToken, getFirstQuestion]);
+
+  const fetchCareerTest = useCallback(async () => {
+    try {
+      const token = await getToken();
+
+      const response = await fetch(`${BACKEND_URL}/get-test`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.status === 404) {
+        startEvent();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('Error loading the career survey');
+      }
+
+      const responseData = await response.json();
+
+      setMessages((responseData.careerTest.fullConversation) || []);
+      setEventId(responseData.careerTest.id);
+
+      if (responseData.careerTest.fullConversation !== null) {
+        return;
+      }
+
+      await getFirstQuestion();
+    } catch (error) {
+      alert(error);
+    }
+  }, [getToken, startEvent, getFirstQuestion]);
+
+  useEffect(() => {
+    fetchCareerTest();
+  }, [fetchCareerTest]);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  return (
+    <div className="chat-container">
+      <div className="chat-messages">
+        {messages?.map((message, index) => (
+          <Message
+            key={index}
+            message={message.content}
+            isUser={message.sender === "User"}
+          />
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+      <div className="chat-input-container">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+          placeholder="Type your message here..."
+          className="chat-input"
+          disabled={isLoading}
+        />
+        <button onClick={sendMessage} className="chat-send-button" disabled={isLoading}>
+          Send
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Chat;
+
+// File: ./Frontend/src/pages/SignInPage.tsx
+
+import { SignIn } from '@clerk/clerk-react';
+
+export default function SignInPage() {
+  return(
+        <div className='center-container'>
+            <SignIn routing="path" path="/sign-in" />;
+        </div>
+  )
+}
+
+// File: ./Frontend/src/pages/Results.tsx
+
+import { useAuth } from "@clerk/clerk-react";
+import { useCallback, useEffect, useState } from "react";
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+type Career = {
+  id: number;
+  title: string;
+  description: string;
+  personalityDescription: string;
+  education: string;
+  averageSalary: string;
+  lowerSalary: string;
+  highestSalary: string;
+  tasks: string[] | null;
+  careerTasks: Task[];
+  knowledge: KnowledgeCategory[] | null;
+  abilities: AbilityCategory[] | null;
+  skills: SkillCategory[] | null;
+  technology: TechnologyCategory[] | null;
+  personality: Personality;
+};
+
+type Task = {
+  id: number;
+  careerId: number;
+  taskDescription: string;
+};
+
+type KnowledgeCategory = {
+  id: number;
+  careerId: number;
+  name: string;
+  areas: string[];
+};
+
+type AbilityCategory = {
+  id: number;
+  careerId: number;
+  name: string;
+  areas: string[];
+};
+
+type SkillCategory = {
+  id: number;
+  careerId: number;
+  name: string;
+  areas: string[];
+};
+
+type TechnologyCategory = {
+  id: number;
+  careerId: number;
+  name: string;
+  areas: string[];
+};
+
+type Personality = {
+  description: string;
+  attributes: string[] | null;
+};
+
+const Results = () => {
+
+  const { getToken } = useAuth();
+  const [careers, setCareers] = useState<Career[]>([]);
+
+  const fetchResults = useCallback(async () => {
+    try {
+      const token = await getToken();
+
+      const response = await fetch(`${BACKEND_URL}/results`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Error loading results');
+      }
+
+      const responseData = await response.json();
+
+      console.log(responseData.careers);
+      setCareers(responseData.careers);
+    } catch (error) {
+      alert(error);
+    }
+  }, [getToken]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [fetchResults])
+
+  return (
+    <div className="results-page">
+      {careers.map((career) => (
+        <div key={career.id} className="career-card">
+          <h2>{career.title}</h2>
+          <p><strong>Descripción:</strong> {career.description}</p>
+          <p><strong>Descripción de la Personalidad:</strong> {career.personalityDescription}</p>
+          <p><strong>Educación:</strong> {career.education}</p>
+          <p><strong>Salario Promedio:</strong> {career.averageSalary}</p>
+          <p><strong>Rango Salarial:</strong> {career.lowerSalary} - {career.highestSalary}</p>
+
+          <h3>Tareas</h3>
+          <ul>
+            {career.careerTasks?.map((task) => (
+              <li key={task.id}>{task.taskDescription}</li>
+            ))}
+          </ul>
+
+          <h3>Conocimientos</h3>
+          {career.knowledge ? (
+            <ul>
+              {career.knowledge.map((knowledge) => (
+                <li key={knowledge.id}>
+                  <strong>{knowledge.name}:</strong> {knowledge.areas.join(", ")}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay datos de conocimientos disponibles</p>
+          )}
+
+          <h3>Habilidades</h3>
+          {career.abilities ? (
+            <ul>
+              {career.abilities.map((ability) => (
+                <li key={ability.id}>
+                  <strong>{ability.name}:</strong> {ability.areas.join(", ")}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay datos de habilidades disponibles</p>
+          )}
+
+          <h3>Categorías de Habilidades</h3>
+          {career.skills ? (
+            <ul>
+              {career.skills.map((skillCategory) => (
+                <li key={skillCategory.id}>
+                  <strong>{skillCategory.name}:</strong> {skillCategory.areas.join(", ")}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay datos de categorías de habilidades disponibles</p>
+          )}
+
+          <h3>Categorías de Tecnología</h3>
+          {career.technology ? (
+            <ul>
+              {career.technology.map((technologyCategory) => (
+                <li key={technologyCategory.id}>
+                  <strong>{technologyCategory.name}:</strong> {technologyCategory.areas.join(", ")}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay datos de categorías de tecnología disponibles</p>
+          )}
+
+          <h3>Atributos de Personalidad</h3>
+          {career.personality.attributes ? (
+            <ul>
+              {career.personality.attributes.map((attribute, index) => (
+                <li key={index}>
+                  <strong>{attribute}</strong>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay atributos de personalidad disponibles</p>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default Results;
+
+// File: ./Frontend/src/Layout/Layout.tsx
+
+import { Button, Navbar } from '../components';
+import './Layout.css'
+//TODO Improve the layout component adding pictures or content 
+const Layout = () => {
+  return (
+    <>
+    <div className='layout__container'>
+      <Navbar />
+      <div className="layout__content">
+        <h1 className="layout__title">Discover your ideal career with AI.</h1>
+
+        <p className="layout__description">Unlock your full potential and find the perfect career path with our AI-powered guidance.</p>
+
+        <Button 
+        text="Get Started" 
+        link="/app" />
+      </div>
+    </div>
+    </>
+  );
+};
+
+export default Layout;
+// File: ./Frontend/src/components/Button/Button.tsx
+
+import './Button.css'
+type ButtonProps = {
+  text: string;
+  link?: string;
+}
+
+export const Button = ({ text, link }: ButtonProps) => {
+  return (
+    <button className='button'>
+      <a href={link}>{text}</a>
+    </button>
+  )
+}
+// File: ./Frontend/src/components/ProtectedRoute/ProtectedRoute.tsx
+
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@clerk/clerk-react';
+import { Footer } from '../Footer/Footer';
+import ProtectedNavbar from '../ProtectedNavbar/ProtectedNavbar';
+
+export function ProtectedRoute({ element }) {
+  const {isLoaded, userId} = useAuth();
+ 
+  if (!isLoaded) {
+        return
+  }
+
+  if (!userId) {
+    return <Navigate to="/sign-in" />;
+  }
+
+  return (
+    <div className='container'>
+        <ProtectedNavbar/> 
+        {element}
+        
+        <Footer/>
+    </div>
+  );
+}
+
+// File: ./Frontend/src/components/Card/Card.tsx
+
+import './Card.css'
+interface CardProps {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export const Card = ({icon, title, description} : CardProps) => {
+
+  
+
+  return (
+    <div className="card__container">
+      <img src={`/svg/${icon}.svg`} alt="icon" className="card__icon"/>
+      <h3 className="card__title">{title}</h3>
+      <p className="card__content">{description}</p>
+    </div>
+  )
+}
+// File: ./Frontend/src/components/Hero/Hero.tsx
+
+
+// File: ./Frontend/src/components/Navbar/Navbar.tsx
+
+import {SignedIn, SignedOut, UserButton } from '@clerk/clerk-react'
+import './Navbar.css'
+import { Signin } from '../auth/Signin';
+
+export function Navbar() { 
+
+  return (
+    <>
+        <div className='Navbar'>
+            <SignedOut>
+                <Signin />
+            </SignedOut>
+            <SignedIn>
+                <UserButton />
+            </SignedIn>
+        </div>
+    </>
+  )
+}
+
+// File: ./Frontend/src/components/ProtectedNavbar/ProtectedNavbar.tsx
+
+import React from 'react';
+import './ProtectedNavbar.css';
+import { SignedOut, SignedIn, UserButton } from '@clerk/clerk-react';
+import { Signin } from '../auth/Signin';
+
+const ProtectedNavbar: React.FC = () => {
+  return (
+    <nav className="navbar">
+      <div className="navbar-brand">
+        <a href="/">CareerCraft</a>
+      </div>
+      <ul className="navbar-links">
+        <li><a href="/app">Find your career</a></li>
+        <li><a href="/results">Test Results</a></li>
+      </ul>
+      <div className="navbar-buttons">
+        <SignedOut>
+          <Signin />
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </div>
+    </nav>
+  );
+};
+
+export default ProtectedNavbar;
+
+// File: ./Frontend/src/components/Footer/Footer.tsx
+
+import './Footer.css'
+export const Footer = () => {
+  return (
+    <>
+      <footer>
+        <p>Made by Miguel Colmenarez & Luis Matos with ❤</p>
+      </footer>
+    </>
+  )
+}
+// File: ./Frontend/src/components/ChatComponents/Input.tsx
+
+import { useState } from "react"
+import React from "react"
+type InputProps = {
+  prompt?: string;
+}
+
+export const Input = ({ prompt = '' }: InputProps) =>{
+
+  const [_prompt, setPrompt] = useState(prompt)
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPrompt(e.target.value);
+    return React.createElement('div', {
+      role: "Assistant",
+      children: _prompt
+    })
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => { 
+    e.preventDefault()    
+  }
+  
+  return(
+    <form onSubmit={handleSubmit} method="POST">
+      <input  placeholder="Type your message here" value={_prompt} onChange={handleInput} className="prompt" />
+      <button type="submit" className="button--submit">Send</button>
+    </form>
+  )
+
+  
+}
+
+// File: ./Frontend/src/components/Message/Message.tsx
+
+import React from 'react';
+import './Message.css';
+
+interface MessageProps {
+  message: string;
+  isUser: boolean;
+}
+
+const Message: React.FC<MessageProps> = ({ message, isUser }) => {
+  return (
+    <div className={`message ${isUser ? 'user-message' : 'ai-message'}`}>
+      <div className="message-content">
+        {message}
+      </div>
+    </div>
+  );
+};
+
+export default Message;
+
+// File: ./Frontend/src/components/auth/Login.tsx
+
+
+interface LoginButtonProps {
+    onClick: () => void;
+}
+
+export const Login: React.FC<LoginButtonProps> = ({onClick}) => {
+
+  return (
+    <button className="button-login" onClick={onClick}>
+        Sign In      
+    </button>
+  )
+}
+
+// File: ./Frontend/src/components/auth/Signin.tsx
+
+import { useNavigate } from 'react-router'
+import './Signin.css'
+
+export function Signin() {
+
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate('/sign-in');
+  }
+ 
+
+  return(
+    <>
+    <div className='signin'>
+      <button className="button-signin" onClick={handleClick}>
+        Sign in
+      </button>
+    </div>
+    </>
+  )
+}
+
+// File: ./Frontend/src/components/SectionCtA/CtA.tsx
+
+import './CtA.css'
+import { Button } from "../Button/Button";
+
+export const Cta = () => {
+
+  return (
+    <>
+    <section className="cta__container">
+      <h2 className='cta__title'>Start your journey</h2>
+      <h3 className='cta__subtitle'>Take the first step towards your dream career with our AI-powered guidance.</h3>
+
+      <Button
+      text="Get Started"
+      link="/app"
+      />
+
+    </section>
+    </>
+  )
+}
+
+// File: ./Frontend/src/main.tsx
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { createRoot } from 'react-dom/client'
+import { ClerkProvider } from '@clerk/clerk-react'
+import App from './App.tsx'
+import './index.css'
+import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute.tsx'
+import SignInPage from './pages/SignInPage.tsx'
+import Chat from './pages/Chat.tsx'
+import Results from './pages/Results.tsx'
+
+const PUBLISHABLE_KEY = import.meta.env.VITE_PUBLISHED_KEY;
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error('Missing Publishable Key')
+}
+
+createRoot(document.getElementById('root')!).render(
+  <BrowserRouter>
+    <ClerkProvider 
+        publishableKey={PUBLISHABLE_KEY} 
+        afterSignOutUrl="/" 
+    >
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path='/app' element={<ProtectedRoute element={<Chat />}/>} />
+        <Route path="/sign-in" element={<SignInPage />} />
+        <Route path="/results" element={<ProtectedRoute element={<Results/>}/>}/>
+      </Routes>
+    </ClerkProvider>
+  </BrowserRouter>,
+)
+
+// File: ./Frontend/src/App.tsx
+
+import Layout from './Layout/Layout'
+import { Card, Cta, Footer } from './components'
+
+function App() {
+
+  return (
+    <>
+    <div className='container'>
+    <Layout />
+
+    <div className="career__path">
+      <h2>Explore Different Career Paths</h2>
+      <p>Find the perfect career that aligns with your passions and strengths.</p>
+      <div className='career__cards'>
+        <Card 
+        icon='briefCase'
+        title='Business and Finance'
+        description='Explore careers in accounting, marketing, management, and more.'
+        />
+        <Card 
+        icon='Code'
+        title='Business and Finance'
+        description='Explore careers in accounting, marketing, management, and more.'
+        />
+        <Card 
+        icon='Heart'
+        title='Business and Finance'
+        description='Explore careers in accounting, marketing, management, and more.'
+        />
+        <Card 
+        icon='Palette'
+        title='Business and Finance'
+        description='Explore careers in accounting, marketing, management, and more.'
+        />
+        <Card 
+        icon='School'
+        title='Business and Finance'
+        description='Explore careers in accounting, marketing, management, and more.'
+        />
+        <Card 
+        icon='rrhh'
+        title='Business and Finance'
+        description='Explore careers in accounting, marketing, management, and more.'
+        />
+        
+      </div>
+    </div>
+
+    <Cta />
+
+    <Footer />
+    </div>
+
+    </>
+  )
+}
+
+export default App

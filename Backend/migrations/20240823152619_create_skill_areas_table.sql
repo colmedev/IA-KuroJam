@@ -3,7 +3,7 @@
 CREATE TABLE skill_areas(
     id SERIAL PRIMARY KEY,
     category_id INT REFERENCES skill_categories(id),
-    category_name VARCHAR(255)
+    area_name VARCHAR(255)
 );
 -- +goose StatementEnd
 

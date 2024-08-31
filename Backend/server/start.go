@@ -1,8 +1,12 @@
 package server
 
 import (
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"flag"
 	"fmt"
+	"log"
 	"log/slog"
 	"os"
 	"strings"
@@ -38,7 +42,7 @@ func StartServer() error {
 		return nil
 	})
 
-	flag.StringVar(&config.Auth.SigningKey, "signing-key", "abc123", "JWT Tokens Signing Key")
+	// flag.StringVar(&config.Auth.SigningKey, "signing-key", "abc123", "JWT Tokens Signing Key")
 	flag.IntVar(&config.Auth.TokenExpirationInMinutes, "token-expiration", 15, "Token Expiration in Minutes")
 
 	flag.StringVar(&config.LlmApiKey, "llm-api-key", "", "LLM API Key")
@@ -46,6 +50,15 @@ func StartServer() error {
 	displayVersion := flag.Bool("version", false, "Display version and exit")
 
 	flag.Parse()
+
+	// Load Key
+	//TODO: Change to flag path
+	publicKey, err := loadRSAPublicKeyFromFile("./public_key.pem")
+	if err != nil {
+		log.Fatal("Error loading public key:", err)
+	}
+
+	config.Auth.SigningKey = publicKey
 
 	if *displayVersion {
 		fmt.Printf("Version\t%s\n", version)
@@ -104,4 +117,28 @@ func StartServer() error {
 
 	return nil
 
+}
+
+func loadRSAPublicKeyFromFile(filePath string) (*rsa.PublicKey, error) {
+	pemData, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read public key file: %v", err)
+	}
+
+	block, _ := pem.Decode(pemData)
+	if block == nil || block.Type != "PUBLIC KEY" {
+		return nil, fmt.Errorf("failed to decode PEM block containing public key")
+	}
+
+	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse public key: %v", err)
+	}
+
+	rsaPub, ok := pub.(*rsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("not an RSA public key")
+	}
+
+	return rsaPub, nil
 }

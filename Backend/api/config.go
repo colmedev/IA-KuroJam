@@ -1,5 +1,7 @@
 package api
 
+import "crypto/rsa"
+
 type Config struct {
 	Port int
 	Env  string
@@ -18,7 +20,7 @@ type Config struct {
 		TrustedOrigins []string
 	}
 	Auth struct {
-		SigningKey               string
+		SigningKey               *rsa.PublicKey
 		TokenExpirationInMinutes int
 	}
 	LlmApiKey string

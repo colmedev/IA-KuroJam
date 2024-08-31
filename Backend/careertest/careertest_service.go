@@ -13,7 +13,7 @@ type Service interface {
 	StartTest(ctx context.Context, ct *CareerTest) error
 	GetQuestion(ctx context.Context, careerTestId int64, userId int64) (*Message, error)
 	PostAnswer(ctx context.Context, lastAnswer string, careerTestId int64, userId int64) (*Message, error)
-	GetResultsEmbedding(ctx context.Context, careerTestId int64, userId int64) ([]float32, error)
+	GetResultsEmbedding(ctx context.Context, userId int64) ([]float32, error)
 	GetActiveTest(ctx context.Context, userId int64) (*CareerTest, error)
 }
 
@@ -105,7 +105,7 @@ func (cts *CareerTestService) PostAnswer(ctx context.Context, lastAnswer string,
 	careerTest.FullConversation = append(careerTest.FullConversation, *iaMsg)
 	careerTest.AIQuestions = append(careerTest.AIQuestions, newQuestion)
 
-	if len(careerTest.AIQuestions) >= 15 {
+	if len(careerTest.AIQuestions) >= 10 {
 		careerTest.Status = "Completed"
 	} else {
 		careerTest.Status = "In Process"
@@ -152,8 +152,8 @@ func (cts *CareerTestService) GetQuestion(ctx context.Context, careerTestId int6
 	return iaMsg, nil
 }
 
-func (cts *CareerTestService) GetResultsEmbedding(ctx context.Context, careerTestId int64, userId int64) ([]float32, error) {
-	careerTest, err := cts.store.Get(ctx, careerTestId)
+func (cts *CareerTestService) GetResultsEmbedding(ctx context.Context, userId int64) ([]float32, error) {
+	careerTest, err := cts.store.GetLastCompleted(ctx, userId)
 	if err != nil {
 		return []float32{}, fmt.Errorf("CareerTestService GetResultsString: %w", err)
 	}
