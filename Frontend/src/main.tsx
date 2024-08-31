@@ -6,6 +6,7 @@ import './index.css'
 import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute.tsx'
 import SignInPage from './pages/SignInPage.tsx'
 import Chat from './pages/Chat.tsx'
+import Results from './pages/Results.tsx'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_PUBLISHED_KEY;
 
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<App />} />
         <Route path='/app' element={<ProtectedRoute element={<Chat />}/>} />
         <Route path="/sign-in" element={<SignInPage />} />
+        <Route path="/results" element={<ProtectedRoute element={<Results/>}/>}/>
       </Routes>
     </ClerkProvider>
   </BrowserRouter>,

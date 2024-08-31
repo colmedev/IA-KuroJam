@@ -24,3 +24,5 @@ go.work.sum
 
 # data
 careers.json
+
+.pem

@@ -19,6 +19,7 @@ type store interface {
 	Update(ctx context.Context, ct *CareerTest) error
 	Get(ctx context.Context, careerTestId int64) (*CareerTest, error)
 	GetActive(ctx context.Context, userId int64) (*CareerTest, error)
+	GetLastCompleted(ctx context.Context, userId int64) (*CareerTest, error)
 }
 
 type careerTestStore struct {
@@ -162,6 +163,67 @@ func (cts *careerTestStore) GetActive(ctx context.Context, userId int64) (*Caree
 		status, skills,  version, last_question, last_answer, ai_questions
 		FROM career_tests
 		WHERE status != 'Completed'
+		AND user_id = $1
+		ORDER BY id DESC
+		LIMIT 1
+		`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	var careerTest CareerTest
+	var fullConversation []byte
+	var conversationSummary sql.NullString
+	var lastQuestion sql.NullString
+	var lastAnswer sql.NullString
+
+	err := cts.db.QueryRowxContext(ctx, query, userId).Scan(
+		&careerTest.ID,
+		&careerTest.UserId,
+		&fullConversation,
+		&conversationSummary,
+		&careerTest.Status,
+		pq.Array(&careerTest.Skills),
+		&careerTest.Version,
+		&lastQuestion,
+		&lastAnswer,
+		pq.Array(&careerTest.AIQuestions),
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, fmt.Errorf("%w (not active career test found)", ErrRecordNotFound)
+		default:
+			return nil, fmt.Errorf("error fetching career test: %w", err)
+		}
+	}
+
+	if len(fullConversation) > 0 {
+		if err := json.Unmarshal(fullConversation, &careerTest.FullConversation); err != nil {
+			return nil, fmt.Errorf("error unmarshaling full_conversation for career test (id: %v): %w", careerTest.ID, err)
+		}
+	}
+
+	if conversationSummary.Valid {
+		careerTest.ConversationSummary = conversationSummary.String
+	}
+
+	if lastQuestion.Valid {
+		careerTest.LastQuestion = lastQuestion.String
+	}
+
+	if lastAnswer.Valid {
+		careerTest.LastAnswer = lastAnswer.String
+	}
+
+	return &careerTest, nil
+}
+
+func (cts *careerTestStore) GetLastCompleted(ctx context.Context, userId int64) (*CareerTest, error) {
+	query := `SELECT id, user_id, full_conversation, conversation_summary, 
+		status, skills,  version, last_question, last_answer, ai_questions
+		FROM career_tests
+		WHERE status = 'Completed'
 		AND user_id = $1
 		ORDER BY id DESC
 		LIMIT 1

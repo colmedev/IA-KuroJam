@@ -23,7 +23,7 @@ confirm:
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	@go run ./cmd/backend/... -db-dsn=${DB_DSN} -signing-key=${SIGNING_KEY} -llm-api-key=${LLM_API_KEY}
+	@go run ./cmd/backend/... -db-dsn=${DB_DSN} -llm-api-key=${LLM_API_KEY}
 
 ## run/dataloader: run the cmd/dataloader application
 .PHONY: run/dataloader

@@ -5,22 +5,22 @@ import (
 )
 
 type Career struct {
-	ID                     int64                  `db:"id" json:"id"`
-	Title                  string                 `db:"title" json:"title"`
-	Description            string                 `db:"description" json:"description"`
-	PersonalityDescription string                 `db:"personality_description" json:"personalityDescription"`
-	Education              string                 `db:"education" json:"education"`
-	AverageSalary          string                 `db:"average_salary" json:"averageSalary"`
-	LowerSalary            string                 `db:"lower_salary" json:"lowerSalary"`
-	HighestSalary          string                 `db:"highest_salary" json:"highestSalary"`
-	Embedding              pgvector.Vector        `db:"embedding" json:"embedding"`
-	TasksString            []string               `db:"-" json:"tasks"`
-	Tasks                  []Task                 `db:"-" json:"careerTasks"`
-	Knowledge              []KnowledgeCategory    `db:"-" json:"knowledge"`
-	Abilities              []AbilityCategory      `db:"-" json:"abilities"`
-	SkillCategories        []SkillCategory        `db:"-" json:"skillCategories"`
-	TecnologyCategories    []TechnologyCategory   `db:"-" json:"technologyCategories"`
-	PersonalityAttributes  []PersonalityAttribute `db:"-" json:"personalityAttributes"`
+	ID                     int64                `db:"id" json:"id"`
+	Title                  string               `db:"title" json:"title"`
+	Description            string               `db:"description" json:"description"`
+	PersonalityDescription string               `db:"personality_description" json:"personalityDescription"`
+	Education              string               `db:"education" json:"education"`
+	AverageSalary          string               `db:"average_salary" json:"averageSalary"`
+	LowerSalary            string               `db:"lower_salary" json:"lowerSalary"`
+	HighestSalary          string               `db:"highest_salary" json:"highestSalary"`
+	Embedding              pgvector.Vector      `db:"embedding" json:"embedding"`
+	TasksString            []string             `db:"-" json:"tasks"`
+	Tasks                  []Task               `db:"-" json:"careerTasks"`
+	Knowledge              []KnowledgeCategory  `db:"-" json:"knowledge"`
+	Abilities              []AbilityCategory    `db:"-" json:"abilities"`
+	SkillCategories        []SkillCategory      `db:"-" json:"skills"`
+	TecnologyCategories    []TechnologyCategory `db:"-" json:"technology"`
+	Personality            Personality          `db:"-" json:"personality"`
 }
 
 type Task struct {
@@ -30,10 +30,10 @@ type Task struct {
 }
 
 type KnowledgeCategory struct {
-	ID             int64           `db:"id" json:"id"`
-	CareerID       int64           `db:"career_id" json:"careerId"`
-	CategoryName   string          `db:"category_name" json:"categoryName"`
-	KnowledgeAreas []KnowledgeArea `db:"-" json:"knowledgeAreas"`
+	ID       int64    `db:"id" json:"id"`
+	CareerID int64    `db:"career_id" json:"careerId"`
+	Name     string   `db:"category_name" json:"name"`
+	Areas    []string `db:"-" json:"areas"` // Now a slice of strings
 }
 
 type KnowledgeArea struct {
@@ -43,10 +43,10 @@ type KnowledgeArea struct {
 }
 
 type AbilityCategory struct {
-	ID           int64         `db:"id" json:"id"`
-	CareerID     int64         `db:"career_id" json:"careerId"`
-	CategoryName string        `db:"category_name" json:"categoryName"`
-	AbilityAreas []AbilityArea `db:"-" json:"abilityAreas"`
+	ID       int64    `db:"id" json:"id"`
+	CareerID int64    `db:"career_id" json:"careerId"`
+	Name     string   `db:"category_name" json:"name"`
+	Areas    []string `db:"-" json:"areas"` // Now a slice of strings
 }
 
 type AbilityArea struct {
@@ -56,10 +56,10 @@ type AbilityArea struct {
 }
 
 type SkillCategory struct {
-	ID           int64       `db:"id" json:"id"`
-	CareerID     int64       `db:"career_id" json:"careerId"`
-	CategoryName string      `db:"category_name" json:"categoryName"`
-	SkillAreas   []SkillArea `db:"-" json:"skillAreas"`
+	ID       int64    `db:"id" json:"id"`
+	CareerID int64    `db:"career_id" json:"careerId"`
+	Name     string   `db:"category_name" json:"name"`
+	Areas    []string `db:"-" json:"areas"` // Now a slice of strings
 }
 
 type SkillArea struct {
@@ -69,16 +69,21 @@ type SkillArea struct {
 }
 
 type TechnologyCategory struct {
-	ID              int64            `db:"id" json:"id"`
-	CareerID        int64            `db:"career_id" json:"careerId"`
-	CategoryName    string           `db:"category_name" json:"categoryName"`
-	TechnologyAreas []TechnologyArea `db:"-" json:"technologyAreas"`
+	ID       int64    `db:"id" json:"id"`
+	CareerID int64    `db:"career_id" json:"careerId"`
+	Name     string   `db:"category_name" json:"name"`
+	Areas    []string `db:"-" json:"areas"` // Now a slice of strings
 }
 
 type TechnologyArea struct {
 	ID         int64  `db:"id" json:"id"`
 	CategoryID int64  `db:"category_id" json:"categoryId"`
 	AreaName   string `db:"area_name" json:"areaName"`
+}
+
+type Personality struct {
+	Description string   `db:"-" json:"description"`
+	Attributes  []string `db:"-" json:"attributes"`
 }
 
 type PersonalityAttribute struct {

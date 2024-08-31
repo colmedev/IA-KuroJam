@@ -116,15 +116,8 @@ func (h *Handlers) postAnswer(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) getResults(w http.ResponseWriter, r *http.Request) {
 	user := h.app.ContextGetUser(r)
-	careerTestIdStr := chi.URLParam(r, "id")
 
-	careerTestId, err := strconv.ParseInt(careerTestIdStr, 10, 64)
-	if err != nil {
-		h.app.BadRequestResponse(w, r, fmt.Errorf("invalid path value"))
-		return
-	}
-
-	emb, err := h.app.Services.CareerTestService.GetResultsEmbedding(r.Context(), careerTestId, user.Id)
+	emb, err := h.app.Services.CareerTestService.GetResultsEmbedding(r.Context(), user.Id)
 	if err != nil {
 		h.app.ServerErrorResponse(w, r, err)
 		return
